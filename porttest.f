@@ -17,9 +17,10 @@
          subroutine ch2ch(before)
             implicit none
             character*5 before
+            character*1 after(20)
             integer word36, dummy
             integer i, n
-            integer after(20)
+            integer chars(20)
             integer IA5
             external IA5
 
@@ -27,8 +28,9 @@
             word36 = IA5(before)
             print '(A,O12.12,A)', '36-bit integer: O"', word36, '"'
             dummy = 0
-            call A5TOA1(word36, dummy, dummy, after, n)
-            print '(A,20A)', 'Text after: ', (char(after(i)), i = 1, n)
+            call A5TOA1(word36, dummy, dummy, chars, n)
+            after = char(ishft(chars, -29))
+            print '(A,20A)', 'Text after: "', (after(i), i = 1, n), '"'
          end subroutine
 
       end program
