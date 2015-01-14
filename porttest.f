@@ -8,6 +8,8 @@
          print '(A8)', buf
          call ch2ch('XYZZY')
          call ch2ch('PLUGH')
+         call ch2ch('KEYS')
+         call ch2ch('KEYS ')
          call ch2ch('     ')
          call ch2ch(' ')
          call ch2ch('')
