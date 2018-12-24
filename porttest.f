@@ -2,10 +2,6 @@
          implicit none
          character*10 buf
 
-         call date(buf)
-         print '(A9)', buf
-         call time(buf)
-         print '(A8)', buf
          call ch2ch('XYZZY')
          call ch2ch('PLUGH')
          call ch2ch('KEYS')
