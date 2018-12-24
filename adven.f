@@ -289,11 +289,36 @@ C  START NEW DATA SECTION.  SECT IS THE SECTION NUMBER.
 1002  READ(1,1003)SECT
 1003  FORMAT(I2)
       OLDLOC=-1
-      GOTO(1100,1004,1004,1030,1040,1004,1004,1050,1060,1070,1004,
-     1     1080,1004) (SECT+1)
+C     GOTO(1100,1004,1004,1030,1040,1004,1004,1050,1060,1070,1004,
+C    1     1080,1004) (SECT+1)
 C           (0)  (1)  (2)  (3)  (4)  (5)  (6)  (7)  (8)  (9)  (10)
 C          (11) (12)
-      CALL BUG(9)
+      select case (SECT)
+         case (0)
+            GOTO 1100
+         case (1:2)
+            GOTO 1004
+         case (3)
+            GOTO 1030
+         case (4)
+            GOTO 1040
+         case (5:6)
+            GOTO 1004
+         case (7)
+            GOTO 1050
+         case (8)
+            GOTO 1060
+         case (9)
+            GOTO 1070
+         case (10)
+            GOTO 1004
+         case (11)
+            GOTO 1080
+         case (12)
+            GOTO 1004
+         case default
+            CALL BUG(9)
+      end select
 
 C  SECTIONS 1, 2, 5, 6, 10, 12.  READ MESSAGES AND SET UP POINTERS.
 
@@ -324,36 +349,29 @@ C1005  FORMAT(15A5)
 C  ABOVE KLUGE IS TO AVOID F40 BUG IF CRLF BROKEN ACROSS RECORD BOUNDARY
       CALL BUG(1)
 1007  LINES(LINUSE)=KK+1
-      IF(LOC.EQ.OLDLOC)GOTO 1020
-      LINES(LINUSE)=-LINES(LINUSE)
-      IF(SECT.EQ.12)GOTO 1013
-      IF(SECT.EQ.10)GOTO 1012
-      IF(SECT.EQ.6)GOTO 1011
-      IF(SECT.EQ.5)GOTO 1010
-      IF(SECT.EQ.1)GOTO 1008
+      IF (LOC.NE.OLDLOC) THEN
+         LINES(LINUSE)=-LINES(LINUSE)
+         select case (SECT)
+            case (1)
+               LTEXT(LOC)=LINUSE
+            case (5)
+               IF(LOC.GT.0.AND.LOC.LE.100)PTEXT(LOC)=LINUSE
+            case (6)
+               IF(LOC.GT.RTXSIZ)CALL BUG(6)
+               RTEXT(LOC)=LINUSE
+            case (10)
+               CTEXT(CLSSES)=LINUSE
+               CVAL(CLSSES)=LOC
+               CLSSES=CLSSES+1
+            case (12)
+               IF(LOC.GT.MAGSIZ)CALL BUG(6)
+               MTEXT(LOC)=LINUSE
+            case default
+               STEXT(LOC)=LINUSE
+         end select
+      END IF
 
-      STEXT(LOC)=LINUSE
-      GOTO 1020
-
-1008  LTEXT(LOC)=LINUSE
-      GOTO 1020
-
-1010  IF(LOC.GT.0.AND.LOC.LE.100)PTEXT(LOC)=LINUSE
-      GOTO 1020
-
-1011  IF(LOC.GT.RTXSIZ)CALL BUG(6)
-      RTEXT(LOC)=LINUSE
-      GOTO 1020
-
-1012  CTEXT(CLSSES)=LINUSE
-      CVAL(CLSSES)=LOC
-      CLSSES=CLSSES+1
-      GOTO 1020
-
-1013  IF(LOC.GT.MAGSIZ)CALL BUG(6)
-      MTEXT(LOC)=LINUSE
-
-1020  LINUSE=KK+1
+      LINUSE=KK+1
       LINES(LINUSE)=-1
       OLDLOC=LOC
       IF(LINUSE+14.GT.LINSIZ)CALL BUG(2)
@@ -1040,7 +1058,7 @@ C  GET SECOND WORD FOR ANALYSIS.
 
 C  GEE, I DON'T UNDERSTAND.
 
-3000  CALL A5TOA1(WD1,WD1X,IA5('".'),CAT,K)
+3000  CALL A5TOA1(WD1,WD1X,IA5('".   '),CAT,K)
       PRINT 3001,(CAT(I),I=1,K)
 3001  FORMAT(/' SORRY, I DON''T KNOW THE WORD "',20A1)
       GOTO 2600
@@ -1052,31 +1070,129 @@ C  UNLESS VERB IS "SAY", WHICH SNARFS ARBITRARY SECOND WORD.
       SPK=ACTSPK(VERB)
       IF(WD2.NE.0.AND.VERB.NE.SAY)GOTO 2800
       IF(VERB.EQ.SAY)OBJ=WD2
-      IF(OBJ.NE.0)GOTO 4090
+      IF (OBJ.EQ.0) THEN
 
 C  ANALYSE AN INTRANSITIVE VERB (IE, NO OBJECT GIVEN YET).
 
-4080  GOTO(8010,8000,8000,8040,2009,8040,9070,9080,8000,8000,
-     1     2011,9120,9130,8140,9150,8000,8000,8180,8000,8200,
-     2     8000,9220,9230,8240,8250,8260,8270,8000,8000,8300,
-     3     8310)VERB
-C          TAKE DROP  SAY OPEN NOTH LOCK   ON  OFF WAVE CALM
-C          WALK KILL POUR  EAT DRNK  RUB TOSS QUIT FIND INVN
-C          FEED FILL BLST SCOR  FOO  BRF READ BREK WAKE SUSP
-C          HOUR
-      CALL BUG(23)
+C        GOTO(8010,8000,8000,8040,2009,8040,9070,9080,8000,8000,
+C    1        2011,9120,9130,8140,9150,8000,8000,8180,8000,8200,
+C    2        8000,9220,9230,8240,8250,8260,8270,8000,8000,8300,
+C    3        8310)VERB
+C             TAKE DROP  SAY OPEN NOTH LOCK   ON  OFF WAVE CALM
+C             WALK KILL POUR  EAT DRNK  RUB TOSS QUIT FIND INVN
+C             FEED FILL BLST SCOR  FOO  BRF READ BREK WAKE SUSP
+C             HOUR
+         select case (VERB)
+            case (1)
+               GOTO 8010
+            case (4)
+               GOTO 8040
+            case (5)
+               GOTO 2009
+            case (6)
+               GOTO 8040
+            case (7)
+               GOTO 9070
+            case (8)
+               GOTO 9080
+            case (11)
+               GOTO 2011
+            case (12)
+               GOTO 9120
+            case (13)
+               GOTO 9130
+            case (14)
+               GOTO 8140
+            case (15)
+               GOTO 9150
+            case (18)
+               GOTO 8180
+            case (20)
+               GOTO 8200
+            case (22)
+               GOTO 9220
+            case (23)
+               GOTO 9230
+            case (24)
+               GOTO 8240
+            case (25)
+               GOTO 8250
+            case (26)
+               GOTO 8260
+            case (27)
+               GOTO 8270
+            case (30)
+               GOTO 8300
+            case (31)
+               GOTO 8310
+            case (2,3,9,10,16,17,19,21,28,29)
+               GOTO 8000
+            case default
+               CALL BUG(23)
+         end select
+
+      ELSE
 
 C  ANALYSE A TRANSITIVE VERB.
 
-4090  GOTO(9010,9020,9030,9040,2009,9040,9070,9080,9090,2011,
-     1     2011,9120,9130,9140,9150,9160,9170,2011,9190,9190,
-     2     9210,9220,9230,2011,2011,2011,9270,9280,9290,2011,
-     3     2011)VERB
-C          TAKE DROP  SAY OPEN NOTH LOCK   ON  OFF WAVE CALM
-C          WALK KILL POUR  EAT DRNK  RUB TOSS QUIT FIND INVN
-C          FEED FILL BLST SCOR  FOO  BRF READ BREK WAKE SUSP
-C          HOUR
-      CALL BUG(24)
+C        GOTO(9010,9020,9030,9040,2009,9040,9070,9080,9090,2011,
+C    1        2011,9120,9130,9140,9150,9160,9170,2011,9190,9190,
+C    2        9210,9220,9230,2011,2011,2011,9270,9280,9290,2011,
+C    3        2011)VERB
+C             TAKE DROP  SAY OPEN NOTH LOCK   ON  OFF WAVE CALM
+C             WALK KILL POUR  EAT DRNK  RUB TOSS QUIT FIND INVN
+C             FEED FILL BLST SCOR  FOO  BRF READ BREK WAKE SUSP
+C             HOUR
+4090     select case (VERB)
+            case (1)
+               GOTO 9010
+            case (2)
+               GOTO 9020
+            case (3)
+               GOTO 9030
+            case (4,6)
+               GOTO 9040
+            case (5)
+               GOTO 2009
+            case (7)
+               GOTO 9070
+            case (8)
+               GOTO 9080
+            case (9)
+               GOTO 9090
+            case (12)
+               GOTO 9120
+            case (13)
+               GOTO 9130
+            case (14)
+               GOTO 9140
+            case (15)
+               GOTO 9150
+            case (16)
+               GOTO 9160
+            case (17)
+               GOTO 9170
+            case (19,20)
+               GOTO 9190
+            case (21)
+               GOTO 9210
+            case (22)
+               GOTO 9220
+            case (23)
+               GOTO 9230
+            case (27)
+               GOTO 9270
+            case (28)
+               GOTO 9280
+            case (29)
+               GOTO 9290
+            case (10,11,18,24,25,26,30,31)
+               GOTO 2011
+            case default
+               CALL BUG(24)
+         end select
+
+      END IF
 
 C  ANALYSE AN OBJECT WORD.  SEE IF THE THING IS HERE, WHETHER WE'VE GOT A VERB
 C  YET, AND SO ON.  OBJECT MUST BE HERE UNLESS VERB IS "FIND" OR "INVENT(ORY)"
@@ -1171,8 +1287,16 @@ C  SPECIAL MOTIONS COME HERE.  LABELLING CONVENTION: STATEMENT NUMBERS NNNXX
 C  (XX=00-99) ARE USED FOR SPECIAL CASE NUMBER NNN (NNN=301-500).
 
 30000 NEWLOC=NEWLOC-300
-      GOTO (30100,30200,30300)NEWLOC
-      CALL BUG(20)
+      select case (NEWLOC)
+         case (1)
+            GOTO 30100
+         case (2)
+            GOTO 30200
+         case (3)
+            GOTO 30300
+         case default
+            CALL BUG(20)
+      end select
 
 C  TRAVEL 301.  PLOVER-ALCOVE PASSAGE.  CAN CARRY ONLY EMERALD.  NOTE: TRAVEL
 C  TABLE MUST INCLUDE "USELESS" ENTRIES GOING THROUGH PASSAGE, WHICH CAN NEVER
@@ -1956,9 +2080,24 @@ C  CONDITIONS, THEN COME BACK TO DO NEAT STUFF.  GOTO 40010 IF CONDITIONS ARE
 C  MET AND WE WANT TO OFFER THE HINT.  GOTO 40020 TO CLEAR HINTLC BACK TO ZERO,
 C  40030 TO TAKE NO ACTION YET.
 
-40000 GOTO (40400,40500,40600,40700,40800,40900)(HINT-3)
+40000 select case (HINT)
+C     GOTO (40400,40500,40600,40700,40800,40900)(HINT-3)
 C           CAVE  BIRD  SNAKE MAZE  DARK  WITT
-      CALL BUG(27)
+         case (4)
+            GOTO 40400
+         case (5)
+            GOTO 40500
+         case (6)
+            GOTO 40600
+         case (7)
+            GOTO 40700
+         case (8)
+            GOTO 40800
+         case (9)
+            GOTO 40900
+         case default
+            CALL BUG(27)
+      end select
 
 40010 HINTLC(HINT)=0
       IF(.NOT.YES(HINTS(HINT,3),0,54))GOTO 2602
