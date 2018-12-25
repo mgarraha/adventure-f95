@@ -280,60 +280,62 @@ program advent
 
 !  SECTIONS 1, 2, 5, 6, 10, 12.  READ MESSAGES AND SET UP POINTERS.
 
-1004  READ(1,'(A80)')TXT
-      TAB=INDEX(TXT,ACHAR(9))
-      IF(TAB.EQ.0)TAB=LEN_TRIM(TXT)+1
-      EOL=LEN_TRIM(TXT)
-      READ(TXT(:TAB-1),'(I4)')LOC
-      IF(LOC.EQ.-1)GOTO 1002
-      DO J=1,15
-         K=TAB+5*J
-         IF (K-4.GT.EOL) THEN
-            LINES(LINUSE+J)=IA5('     ')
-         ELSE
-            WORD=TXT(K-4:K)
-            LINES(LINUSE+J)=IA5(WORD)
+1004  DO
+         READ(1,'(A80)')TXT
+         TAB=INDEX(TXT,ACHAR(9))
+         IF(TAB.EQ.0)TAB=LEN_TRIM(TXT)+1
+         EOL=LEN_TRIM(TXT)
+         READ(TXT(:TAB-1),'(I4)')LOC
+         IF (LOC.EQ.-1) EXIT
+         DO J=1,15
+            K=TAB+5*J
+            IF (K-4.GT.EOL) THEN
+               LINES(LINUSE+J)=IA5('     ')
+            ELSE
+               WORD=TXT(K-4:K)
+               LINES(LINUSE+J)=IA5(WORD)
+            END IF
+         END DO
+         KK=LINES(LINUSE+15)
+!        READ(TXT(TAB+1:),1005)(LINES(J),J=LINUSE+1,LINUSE+14),KK
+!1005    FORMAT(15A5)
+         IF(KK.NE.IA5('     '))CALL BUG(0)
+         DO K=1,14
+            KK=LINUSE+15-K
+            IF(LINES(KK).NE.IA5('     '))GOTO 1007
+         END DO
+         ! AVOID F40 BUG IF CRLF BROKEN ACROSS RECORD BOUNDARY
+         IF (LOC.EQ.0) CYCLE
+         CALL BUG(1)
+1007     LINES(LINUSE)=KK+1
+         IF (LOC.NE.OLDLOC) THEN
+            LINES(LINUSE)=-LINES(LINUSE)
+            select case (SECT)
+               case (1)
+                  LTEXT(LOC)=LINUSE
+               case (5)
+                  IF(LOC.GT.0.AND.LOC.LE.100)PTEXT(LOC)=LINUSE
+               case (6)
+                  IF(LOC.GT.RTXSIZ)CALL BUG(6)
+                  RTEXT(LOC)=LINUSE
+               case (10)
+                  CTEXT(CLSSES)=LINUSE
+                  CVAL(CLSSES)=LOC
+                  CLSSES=CLSSES+1
+               case (12)
+                  IF(LOC.GT.MAGSIZ)CALL BUG(6)
+                  MTEXT(LOC)=LINUSE
+               case default
+                  STEXT(LOC)=LINUSE
+            end select
          END IF
-      END DO
-      KK=LINES(LINUSE+15)
-!      READ(TXT(TAB+1:),1005)(LINES(J),J=LINUSE+1,LINUSE+14),KK
-!1005  FORMAT(15A5)
-      IF(KK.NE.IA5('     '))CALL BUG(0)
-      DO K=1,14
-         KK=LINUSE+15-K
-         IF(LINES(KK).NE.IA5('     '))GOTO 1007
-      END DO
-      IF(LOC.EQ.0)GOTO 1004
-!  ABOVE KLUGE IS TO AVOID F40 BUG IF CRLF BROKEN ACROSS RECORD BOUNDARY
-      CALL BUG(1)
-1007  LINES(LINUSE)=KK+1
-      IF (LOC.NE.OLDLOC) THEN
-         LINES(LINUSE)=-LINES(LINUSE)
-         select case (SECT)
-            case (1)
-               LTEXT(LOC)=LINUSE
-            case (5)
-               IF(LOC.GT.0.AND.LOC.LE.100)PTEXT(LOC)=LINUSE
-            case (6)
-               IF(LOC.GT.RTXSIZ)CALL BUG(6)
-               RTEXT(LOC)=LINUSE
-            case (10)
-               CTEXT(CLSSES)=LINUSE
-               CVAL(CLSSES)=LOC
-               CLSSES=CLSSES+1
-            case (12)
-               IF(LOC.GT.MAGSIZ)CALL BUG(6)
-               MTEXT(LOC)=LINUSE
-            case default
-               STEXT(LOC)=LINUSE
-         end select
-      END IF
 
-      LINUSE=KK+1
-      LINES(LINUSE)=-1
-      OLDLOC=LOC
-      IF(LINUSE+14.GT.LINSIZ)CALL BUG(2)
-      GOTO 1004
+         LINUSE=KK+1
+         LINES(LINUSE)=-1
+         OLDLOC=LOC
+         IF(LINUSE+14.GT.LINSIZ)CALL BUG(2)
+      END DO
+      GOTO 1002
 
 !  THE STUFF FOR SECTION 3 IS ENCODED HERE.  EACH "FROM-LOCATION" GETS A
 !  CONTIGUOUS SECTION OF THE "TRAVEL" ARRAY.  EACH ENTRY IN TRAVEL IS
@@ -341,26 +343,27 @@ program advent
 !  THIS IS THE LAST ENTRY FOR THIS LOCATION.  KEY(N) IS THE INDEX IN TRAVEL
 !  OF THE FIRST OPTION AT LOCATION N.
 
-1030  READ(1,'(A80)')TXT
-      TK=0
-      READ(TXT,*,IOSTAT=IOE)LOC,NEWLOC,TK
-1031  FORMAT(99I4)
-      IF(LOC.EQ.0)GOTO 1030
-!  ABOVE KLUGE IS TO AVOID AFOREMENTIONED F40 BUG
-      IF(LOC.EQ.-1)GOTO 1002
-      IF (KEY(LOC).EQ.0) THEN
-         KEY(LOC)=TRVS
-      ELSE
+1030  DO
+         READ(1,'(A80)')TXT
+         TK=0
+         READ(TXT,*,IOSTAT=IOE)LOC,NEWLOC,TK
+1031     FORMAT(99I4)
+         IF (LOC.EQ.0) CYCLE  ! AVOID AFOREMENTIONED F40 BUG
+         IF (LOC.EQ.-1) EXIT
+         IF (KEY(LOC).EQ.0) THEN
+            KEY(LOC)=TRVS
+         ELSE
+            TRAVEL(TRVS-1)=-TRAVEL(TRVS-1)
+         END IF
+         DO L=1,20
+            IF (TK(L).EQ.0) EXIT
+            TRAVEL(TRVS)=NEWLOC*1000+TK(L)
+            TRVS=TRVS+1
+            IF(TRVS.EQ.TRVSIZ)CALL BUG(3)
+         END DO
          TRAVEL(TRVS-1)=-TRAVEL(TRVS-1)
-      END IF
-      DO L=1,20
-         IF (TK(L).EQ.0) EXIT
-         TRAVEL(TRVS)=NEWLOC*1000+TK(L)
-         TRVS=TRVS+1
-         IF(TRVS.EQ.TRVSIZ)CALL BUG(3)
       END DO
-      TRAVEL(TRVS-1)=-TRAVEL(TRVS-1)
-      GOTO 1030
+      GOTO 1002
 
 !  HERE WE READ IN THE VOCABULARY.  KTAB(N) IS THE WORD NUMBER, ATAB(N) IS
 !  THE CORRESPONDING WORD.  THE -1 AT THE END OF SECTION 4 IS LEFT IN KTAB
@@ -373,9 +376,8 @@ program advent
          READ(TXT,*,IOSTAT=IOE)KTAB(TABNDX),WORD
          ATAB(TABNDX)=IA5(WORD)
 1041     FORMAT(I2,A5)
-         IF(KTAB(TABNDX).EQ.0)GOTO 1043
-!  ABOVE KLUGE IS TO AVOID AFOREMENTIONED F40 BUG
-         IF(KTAB(TABNDX).EQ.-1)GOTO 1002
+         IF (KTAB(TABNDX).EQ.0) GOTO 1043  ! AVOID AFOREMENTIONED F40 BUG
+         IF (KTAB(TABNDX).EQ.-1) GOTO 1002
          ATAB(TABNDX)=IEOR(ATAB(TABNDX),IA5('PHROG'))
       END DO
       CALL BUG(4)
@@ -384,35 +386,41 @@ program advent
 !  PLAC CONTAINS INITIAL LOCATIONS OF OBJECTS.  FIXD IS -1 FOR IMMOVABLE
 !  OBJECTS (INCLUDING THE SNAKE), OR = SECOND LOC FOR TWO-PLACED OBJECTS.
 
-1050  READ(1,'(A80)')TXT
-      K=0
-      READ(TXT,*,IOSTAT=IOE)OBJ,J,K
-      IF(OBJ.EQ.-1)GOTO 1002
-      PLAC(OBJ)=J
-      FIXD(OBJ)=K
-      GOTO 1050
+1050  DO
+         READ(1,'(A80)')TXT
+         K=0
+         READ(TXT,*,IOSTAT=IOE)OBJ,J,K
+         IF (OBJ.EQ.-1) EXIT
+         PLAC(OBJ)=J
+         FIXD(OBJ)=K
+      END DO
+      GOTO 1002
 
 !  READ DEFAULT MESSAGE NUMBERS FOR ACTION VERBS, STORE IN ACTSPK.
 
-1060  READ(1,'(A80)')TXT
-      READ(TXT,*,IOSTAT=IOE)VERB,J
-      IF(VERB.EQ.-1)GOTO 1002
-      ACTSPK(VERB)=J
-      GOTO 1060
+1060  DO
+         READ(1,'(A80)')TXT
+         READ(TXT,*,IOSTAT=IOE)VERB,J
+         IF (VERB.EQ.-1) EXIT
+         ACTSPK(VERB)=J
+      END DO
+      GOTO 1002
 
 !  READ INFO ABOUT AVAILABLE LIQUIDS AND OTHER CONDITIONS, STORE IN COND.
 
-1070  READ(1,'(A80)')TXT
-      TK=0
-      READ(TXT,*,IOSTAT=IOE)K,TK
-      IF(K.EQ.-1)GOTO 1002
-      DO I=1,20
-         LOC=TK(I)
-         IF (LOC.EQ.0) EXIT
-         IF(BITSET(LOC,K))CALL BUG(8)
-         COND(LOC)=COND(LOC)+ISHFT(1,K)
+1070  DO
+         READ(1,'(A80)')TXT
+         TK=0
+         READ(TXT,*,IOSTAT=IOE)K,TK
+         IF (K.EQ.-1) EXIT
+         DO I=1,20
+            LOC=TK(I)
+            IF (LOC.EQ.0) EXIT
+            IF(BITSET(LOC,K))CALL BUG(8)
+            COND(LOC)=COND(LOC)+ISHFT(1,K)
+         END DO
       END DO
-      GOTO 1070
+      GOTO 1002
 
 !  READ DATA FOR HINTS.
 
@@ -430,6 +438,7 @@ program advent
          HNTMAX=MAX(HNTMAX,K)
       END DO
       GOTO 1002
+
 !  FINISH CONSTRUCTING INTERNAL DATA FORMAT
 
 !  IF SETUP=2 WE DON'T NEED TO DO THIS.  IT'S ONLY NECESSARY IF WE HAVEN'T DONE
@@ -770,85 +779,85 @@ program advent
 6010  DTOTAL=0
       ATTACK=0
       STICK=0
-      DO 6030 I=1,6
-      IF(DLOC(I).EQ.0)GOTO 6030
-      J=1
-      KK=DLOC(I)
-      KK=KEY(KK)
-      IF (KK.NE.0) THEN
-         DO
-            NEWLOC=MOD(ABS(TRAVEL(KK))/1000,1000)
-            IF(.NOT.(NEWLOC.GT.300.OR.NEWLOC.LT.15.OR.NEWLOC.EQ.ODLOC(I)  &
-                  .OR.(J.GT.1.AND.NEWLOC.EQ.TK(J-1)).OR.J.GE.20  &
-                  .OR.NEWLOC.EQ.DLOC(I).OR.FORCED(NEWLOC)  &
-                  .OR.(I.EQ.6.AND.BITSET(NEWLOC,3))  &
-                  .OR.ABS(TRAVEL(KK))/1000000.EQ.100)) THEN
-               TK(J)=NEWLOC
-               J=J+1
-            END IF
-            KK=KK+1
-            IF (TRAVEL(KK-1).LT.0) EXIT
-         END DO
-      END IF
-      TK(J)=ODLOC(I)
-      IF(J.GE.2)J=J-1
-      J=1+RANI(J)
-      ODLOC(I)=DLOC(I)
-      DLOC(I)=TK(J)
-      DSEEN(I)=(DSEEN(I).AND.LOC.GE.15)  &
-              .OR.(DLOC(I).EQ.LOC.OR.ODLOC(I).EQ.LOC)
-      IF(.NOT.DSEEN(I))GOTO 6030
-      DLOC(I)=LOC
-      IF(I.NE.6)GOTO 6027
+      DO I=1,6
+         IF (DLOC(I).EQ.0) CYCLE
+         J=1
+         KK=DLOC(I)
+         KK=KEY(KK)
+         IF (KK.NE.0) THEN
+            DO
+               NEWLOC=MOD(ABS(TRAVEL(KK))/1000,1000)
+               IF(.NOT.(NEWLOC.GT.300.OR.NEWLOC.LT.15.OR.NEWLOC.EQ.ODLOC(I)  &
+                     .OR.(J.GT.1.AND.NEWLOC.EQ.TK(J-1)).OR.J.GE.20  &
+                     .OR.NEWLOC.EQ.DLOC(I).OR.FORCED(NEWLOC)  &
+                     .OR.(I.EQ.6.AND.BITSET(NEWLOC,3))  &
+                     .OR.ABS(TRAVEL(KK))/1000000.EQ.100)) THEN
+                  TK(J)=NEWLOC
+                  J=J+1
+               END IF
+               KK=KK+1
+               IF (TRAVEL(KK-1).LT.0) EXIT
+            END DO
+         END IF
+         TK(J)=ODLOC(I)
+         IF(J.GE.2)J=J-1
+         J=1+RANI(J)
+         ODLOC(I)=DLOC(I)
+         DLOC(I)=TK(J)
+         DSEEN(I)=(DSEEN(I).AND.LOC.GE.15)  &
+               .OR.(DLOC(I).EQ.LOC.OR.ODLOC(I).EQ.LOC)
+         IF (.NOT.DSEEN(I)) CYCLE
+         DLOC(I)=LOC
+         IF(I.NE.6)GOTO 6027
 
 !  THE PIRATE'S SPOTTED HIM.  HE LEAVES HIM ALONE ONCE WE'VE FOUND CHEST.
 !  K COUNTS IF A TREASURE IS HERE.  IF NOT, AND TALLY=TALLY2 PLUS ONE FOR AN
 !  UNSEEN CHEST, LET THE PIRATE BE SPOTTED.  USE PLACE(MESSAG) TO DETERMINE IF
 !  PIRATE'S BEEN SEEN, SINCE PLACE(CHEST)=0 COULD MEAN HE THREW IT TO TROLL.
 
-      IF(LOC.EQ.CHLOC.OR.PROP(CHEST).GE.0)GOTO 6030
-      K=0
-      DO J=50,MAXTRS
+         IF (LOC.EQ.CHLOC.OR.PROP(CHEST).GE.0) CYCLE
+         K=0
+         DO J=50,MAXTRS
 !  PIRATE WON'T TAKE PYRAMID FROM PLOVER ROOM OR DARK ROOM (TOO EASY!).
-         IF (J.NE.PYRAM.OR.(LOC.NE.PLAC(PYRAM)  &
-               .AND.LOC.NE.PLAC(EMRALD))) THEN
-            IF(TOTING(J))GOTO 6022
-         END IF
-         IF(HERE(J))K=1
-      END DO
-      IF(TALLY.EQ.TALLY2+1.AND.K.EQ.0.AND.PLACE(MESSAG).EQ.0  &
-              .AND.HERE(LAMP).AND.PROP(LAMP).EQ.1)GOTO 6025
-      IF(ODLOC(6).NE.DLOC(6).AND.PCT(20))CALL RSPEAK(127)
-      GOTO 6030
+            IF (J.NE.PYRAM.OR.(LOC.NE.PLAC(PYRAM)  &
+                  .AND.LOC.NE.PLAC(EMRALD))) THEN
+               IF(TOTING(J))GOTO 6022
+            END IF
+            IF(HERE(J))K=1
+         END DO
+         IF(TALLY.EQ.TALLY2+1.AND.K.EQ.0.AND.PLACE(MESSAG).EQ.0  &
+               .AND.HERE(LAMP).AND.PROP(LAMP).EQ.1)GOTO 6025
+         IF(ODLOC(6).NE.DLOC(6).AND.PCT(20))CALL RSPEAK(127)
+         CYCLE
 
-6022  CALL RSPEAK(128)
-      IF(PLACE(MESSAG).EQ.0)CALL MOVE(CHEST,CHLOC)
-      CALL MOVE(MESSAG,CHLOC2)
-      DO J=50,MAXTRS
-         IF(J.EQ.PYRAM.AND.(LOC.EQ.PLAC(PYRAM)  &
-               .OR.LOC.EQ.PLAC(EMRALD))) CYCLE
-         IF(AT(J).AND.FIXED(J).EQ.0)CALL CARRY(J,LOC)
-         IF(TOTING(J))CALL DROP(J,CHLOC)
-      END DO
-6024  DLOC(6)=CHLOC
-      ODLOC(6)=CHLOC
-      DSEEN(6)=.FALSE.
-      GOTO 6030
+6022     CALL RSPEAK(128)
+         IF(PLACE(MESSAG).EQ.0)CALL MOVE(CHEST,CHLOC)
+         CALL MOVE(MESSAG,CHLOC2)
+         DO J=50,MAXTRS
+            IF(J.EQ.PYRAM.AND.(LOC.EQ.PLAC(PYRAM)  &
+                  .OR.LOC.EQ.PLAC(EMRALD))) CYCLE
+            IF(AT(J).AND.FIXED(J).EQ.0)CALL CARRY(J,LOC)
+            IF(TOTING(J))CALL DROP(J,CHLOC)
+         END DO
+6024     DLOC(6)=CHLOC
+         ODLOC(6)=CHLOC
+         DSEEN(6)=.FALSE.
+         CYCLE
 
-6025  CALL RSPEAK(186)
-      CALL MOVE(CHEST,CHLOC)
-      CALL MOVE(MESSAG,CHLOC2)
-      GOTO 6024
+6025     CALL RSPEAK(186)
+         CALL MOVE(CHEST,CHLOC)
+         CALL MOVE(MESSAG,CHLOC2)
+         GOTO 6024
 
 !  THIS THREATENING LITTLE DWARF IS IN THE ROOM WITH HIM!
 
-6027  DTOTAL=DTOTAL+1
-      IF (ODLOC(I).EQ.DLOC(I)) THEN
-         ATTACK=ATTACK+1
-         IF(KNFLOC.GE.0)KNFLOC=LOC
-         IF(RANI(1000).LT.95*(DFLAG-2))STICK=STICK+1
-      END IF
-6030  CONTINUE
+6027     DTOTAL=DTOTAL+1
+         IF (ODLOC(I).EQ.DLOC(I)) THEN
+            ATTACK=ATTACK+1
+            IF(KNFLOC.GE.0)KNFLOC=LOC
+            IF(RANI(1000).LT.95*(DFLAG-2))STICK=STICK+1
+         END IF
+      END DO
 
 !  NOW WE KNOW WHAT'S HAPPENING.  LET'S TELL THE POOR SUCKER ABOUT IT.
 
