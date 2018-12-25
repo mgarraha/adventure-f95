@@ -1,10 +1,11 @@
 FC = gfortran
 FFLAGS = -fdefault-integer-8 -std=legacy -g
-.SUFFIXES: .f95
+.SUFFIXES:
+.SUFFIXES: .f95 .o
 
 all: advent porttest
 
-advent: port.o advn2.o adven.o
+advent: port.o advn2.o wizcom.o adven.o
 	$(FC) -o $@ $^
 
 porttest: port.o advn2.o porttest.o
@@ -14,4 +15,4 @@ porttest: port.o advn2.o porttest.o
 	$(FC) -c $(FFLAGS) $<
 
 clean:
-	rm advent porttest *.o
+	rm *.o *.mod
