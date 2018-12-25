@@ -10,7 +10,7 @@ module wizcom
    private :: WKDAY, WKEND, HOLID, HBEGIN, HEND, HNAME, MAGIC, MAGNM
 
    public :: START, MAINT, HOURS, MOTD, POOF
-   private :: WIZARD, HOURSX, NEWHRX
+   private :: WIZARD, HOURSX, NEWHRS, NEWHRX
 
 contains
 
