@@ -59,7 +59,7 @@ program advent
       INTEGER PLAC,FIXD,PROP
       INTEGER ACTSPK,CTEXT,CVAL
       INTEGER HINTLC,HINTS
-      LOGICAL HINTED
+      LOGICAL HINTED,QHINT
       INTEGER TK,DLOC,ODLOC
       LOGICAL DSEEN
       CHARACTER*1 CAT
@@ -90,7 +90,7 @@ program advent
       INTEGER HINT,HNTMAX
       INTEGER WD1,WD1X,WD2,WD2X
       INTEGER BOTTLE,WATER,OIL
-      INTEGER IWEST,LIMIT,LINUSE,MAXTRS,NULL,SECT,SPK,TABNDX
+      INTEGER IWEST,LIMIT,LINUSE,MAXTRS,NOOP,SECT,SPK,TABNDX
       INTEGER TALLY,TALLY2,TRVS,TURNS,VERB
       INTEGER XXD,XXT,YYD,YYT
 
@@ -417,17 +417,19 @@ program advent
 !  READ DATA FOR HINTS.
 
 1080  HNTMAX=0
-1081  READ(1,'(A80)')TXT
-      TK=0
-      READ(TXT,*,IOSTAT=IOE)K,TK
-      IF(K.EQ.-1)GOTO 1002
-      IF(K.EQ.0)GOTO 1081
-      IF(K.LT.0.OR.K.GT.HNTSIZ)CALL BUG(7)
-      DO I=1,4
-         HINTS(K,I)=TK(I)
+      DO
+         READ(1,'(A80)')TXT
+         TK=0
+         READ(TXT,*,IOSTAT=IOE)K,TK
+         IF (K.EQ.-1) EXIT
+         IF (K.EQ.0) CYCLE
+         IF(K.LT.0.OR.K.GT.HNTSIZ)CALL BUG(7)
+         DO I=1,4
+            HINTS(K,I)=TK(I)
+         END DO
+         HNTMAX=MAX(HNTMAX,K)
       END DO
-      HNTMAX=MAX(HNTMAX,K)
-      GOTO 1081
+      GOTO 1002
 !  FINISH CONSTRUCTING INTERNAL DATA FORMAT
 
 !  IF SETUP=2 WE DON'T NEED TO DO THIS.  IT'S ONLY NECESSARY IF WE HAVEN'T DONE
@@ -560,7 +562,7 @@ program advent
       BACK=VOCAB(IA5('BACK '),0)
       LOOK=VOCAB(IA5('LOOK '),0)
       CAVE=VOCAB(IA5('CAVE '),0)
-      NULL=VOCAB(IA5('NULL '),0)
+      NOOP=VOCAB(IA5('NULL '),0)
       ENTRNC=VOCAB(IA5('ENTRA'),0)
       DPRSSN=VOCAB(IA5('DEPRE'),0)
 
@@ -1004,8 +1006,18 @@ program advent
       IF(I.EQ.-1)GOTO 3000
       K=MOD(I,1000)
       KQ=I/1000+1
-      GOTO (8,5000,4000,2010)KQ
-      CALL BUG(22)
+      select case (KQ)
+         case (1)
+            GOTO 8
+         case (2)
+            GOTO 5000
+         case (3)
+            GOTO 4000
+         case (4)
+            GOTO 2010
+         case default
+            CALL BUG(22)
+      end select
 
 !  GET SECOND WORD FOR ANALYSIS.
 
@@ -1186,7 +1198,7 @@ program advent
 8     KK=KEY(LOC)
       NEWLOC=LOC
       IF(KK.EQ.0)CALL BUG(26)
-      IF(K.EQ.NULL)GOTO 2
+      IF(K.EQ.NOOP)GOTO 2
       IF(K.EQ.BACK)GOTO 20
       IF(K.EQ.LOOK)GOTO 30
       IF(K.EQ.CAVE)GOTO 40
@@ -1516,8 +1528,8 @@ program advent
 
 !  SAY.  ECHO WD2 (OR WD1 IF NO WD2 (SAY WHAT?, ETC.).)  MAGIC WORDS OVERRIDE.
 
-9030  CALL A5TOA1(WD2,WD2X,IA5('".'),CAT,K)
-      IF(WD2.EQ.0)CALL A5TOA1(WD1,WD1X,IA5('".'),CAT,K)
+9030  CALL A5TOA1(WD2,WD2X,IA5('".   '),CAT,K)
+      IF(WD2.EQ.0)CALL A5TOA1(WD1,WD1X,IA5('".   '),CAT,K)
       IF(WD2.NE.0)WD1=WD2
       I=VOCAB(WD1,-1)
       IF(.NOT.(I.EQ.62.OR.I.EQ.65.OR.I.EQ.71.OR.I.EQ.2025)) THEN
@@ -1688,7 +1700,7 @@ program advent
                CALL MOVE(OBJ,K)
       END DO
       LOC=K
-      K=NULL
+      K=NOOP
       GOTO 8
 
 !  POUR.  IF NO OBJECT, OR OBJECT IS BOTTLE, ASSUME CONTENTS OF BOTTLE.
@@ -1709,7 +1721,7 @@ program advent
          CALL PSPEAK(PLANT,PROP(PLANT)+1)
          PROP(PLANT)=MOD(PROP(PLANT)+2,6)
          PROP(PLANT2)=PROP(PLANT)/2
-         K=NULL
+         K=NOOP
          GOTO 8
       ELSE IF (AT(DOOR)) THEN
          PROP(DOOR)=0
@@ -1782,7 +1794,7 @@ program advent
       IF(DKILL.EQ.1)SPK=149
 9175  CALL RSPEAK(SPK)
       CALL DROP(AXE,LOC)
-      K=NULL
+      K=NOOP
       GOTO 8
 
 !  THIS'LL TEACH HIM TO THROW THE AXE AT THE BEAR!
@@ -2004,7 +2016,7 @@ program advent
 
 8305  YEA=START()
       SETUP=3
-      K=NULL
+      K=NOOP
       GOTO 8
 
 !  HOURS.  REPORT CURRENT NON-PRIME-TIME HOURS.
@@ -2012,6 +2024,7 @@ program advent
 8310  CALL MSPEAK(6)
       CALL HOURS
       GOTO 2012
+
 !  HINTS
 
 !  COME HERE IF HE'S BEEN LONG ENOUGH AT REQUIRED LOC(S) FOR SOME UNUSED HINT.
@@ -2021,53 +2034,39 @@ program advent
 !  40030 TO TAKE NO ACTION YET.
 
 40000 select case (HINT)
-!     GOTO (40400,40500,40600,40700,40800,40900)(HINT-3)
-!           CAVE  BIRD  SNAKE MAZE  DARK  WITT
-         case (4)
-            GOTO 40400
-         case (5)
-            GOTO 40500
-         case (6)
-            GOTO 40600
-         case (7)
-            GOTO 40700
-         case (8)
-            GOTO 40800
-         case (9)
-            GOTO 40900
+!  NOW FOR THE QUICK TESTS.  SEE DATABASE DESCRIPTION FOR ONE-LINE NOTES.
+         case (4)  ! CAVE
+            QHINT = PROP(GRATE).EQ.0.AND..NOT.HERE(KEYS)
+         case (5)  ! BIRD
+            QHINT = HERE(BIRD).AND.TOTING(ROD).AND.OLDOBJ.EQ.BIRD
+         case (6)  ! SNAKE
+            QHINT = HERE(SNAKE).AND..NOT.HERE(BIRD)
+         case (7)  ! MAZE
+            QHINT = ATLOC(LOC).EQ.0.AND.ATLOC(OLDLOC).EQ.0  &
+                  .AND.ATLOC(OLDLC2).EQ.0.AND.HOLDNG.GT.1
+         case (8)  ! DARK
+            QHINT = PROP(EMRALD).NE.-1.AND.PROP(PYRAM).EQ.-1
+         case (9)  ! WITT
+            QHINT = .TRUE.
          case default
             CALL BUG(27)
       end select
 
-40010 HINTLC(HINT)=0
-      IF(.NOT.YES(HINTS(HINT,3),0,54))GOTO 2602
-      PRINT 40012,HINTS(HINT,2)
-40012 FORMAT(/' I AM PREPARED TO GIVE YOU A HINT, BUT IT WILL COST YOU',  &
-              I2,' POINTS.')
-      HINTED(HINT)=YES(175,HINTS(HINT,4),54)
-      IF(HINTED(HINT).AND.LIMIT.GT.30)LIMIT=LIMIT+30*HINTS(HINT,2)
-40020 HINTLC(HINT)=0
-40030 GOTO 2602
+      IF (QHINT) THEN
+         HINTLC(HINT)=0
+         IF (YES(HINTS(HINT,3),0,54)) THEN
+            PRINT 40012,HINTS(HINT,2)
+40012       FORMAT(/' I AM PREPARED TO GIVE YOU A HINT, BUT IT WILL COST YOU',  &
+                  I2,' POINTS.')
+            HINTED(HINT)=YES(175,HINTS(HINT,4),54)
+            IF(HINTED(HINT).AND.LIMIT.GT.30)LIMIT=LIMIT+30*HINTS(HINT,2)
+         END IF
+      ELSE
+         IF (HINT.NE.5) HINTLC(HINT)=0
+      END IF
+      GOTO 2602
 
-!  NOW FOR THE QUICK TESTS.  SEE DATABASE DESCRIPTION FOR ONE-LINE NOTES.
 
-40400 IF(PROP(GRATE).EQ.0.AND..NOT.HERE(KEYS))GOTO 40010
-      GOTO 40020
-
-40500 IF(HERE(BIRD).AND.TOTING(ROD).AND.OLDOBJ.EQ.BIRD)GOTO 40010
-      GOTO 40030
-
-40600 IF(HERE(SNAKE).AND..NOT.HERE(BIRD))GOTO 40010
-      GOTO 40020
-
-40700 IF(ATLOC(LOC).EQ.0.AND.ATLOC(OLDLOC).EQ.0  &
-              .AND.ATLOC(OLDLC2).EQ.0.AND.HOLDNG.GT.1)GOTO 40010
-      GOTO 40020
-
-40800 IF(PROP(EMRALD).NE.-1.AND.PROP(PYRAM).EQ.-1)GOTO 40010
-      GOTO 40020
-
-40900 GOTO 40010
 !  CAVE CLOSING AND SCORING
 
 
@@ -2359,7 +2358,7 @@ contains
 !  BITSET(L,N)  = TRUE IF COND(L) HAS BIT N SET (BIT 0 IS UNITS BIT)
    logical function BITSET(L, N)
       integer, intent(in) :: L, N
-      BITSET = IAND(COND(L), ISHFT(1, N)) /= 0
+      BITSET = BTEST(COND(L), N)
       return
    end function
 

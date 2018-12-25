@@ -1,5 +1,5 @@
 FC = gfortran
-FFLAGS = -fdefault-integer-8 -std=legacy -g
+FFLAGS = -fdefault-integer-8 -g
 .SUFFIXES:
 .SUFFIXES: .f90 .o
 
