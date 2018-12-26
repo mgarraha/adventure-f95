@@ -1049,111 +1049,107 @@ program advent
       SPK=ACTSPK(VERB)
       IF(WD2.NE.0.AND.VERB.NE.SAY)GOTO 2800
       IF(VERB.EQ.SAY)OBJ=WD2
-      IF (OBJ.EQ.0) THEN
+      IF(OBJ.NE.0)GOTO 4090
 
 !  ANALYSE AN INTRANSITIVE VERB (IE, NO OBJECT GIVEN YET).
 
-         select case (VERB)
-            case (1)  ! TAKE
-               GOTO 8010
-            case (4, 6)  ! OPEN, LOCK
-               GOTO 8040
-            case (5)  ! NOTHING
-               GOTO 2009
-            case (7)  ! ON
-               GOTO 9070
-            case (8)  ! OFF
-               GOTO 9080
-            case (11)  ! WALK
-               GOTO 2011
-            case (12)  ! KILL
-               GOTO 9120
-            case (13)  ! POUR
-               GOTO 9130
-            case (14)  ! EAT
-               GOTO 8140
-            case (15)  ! DRINK
-               GOTO 9150
-            case (18)  ! QUIT
-               GOTO 8180
-            case (20)  ! INVEN
-               GOTO 8200
-            case (22)  ! FILL
-               GOTO 9220
-            case (23)  ! BLAST
-               GOTO 9230
-            case (24)  ! SCORE
-               GOTO 8240
-            case (25)  ! FOO
-               GOTO 8250
-            case (26)  ! BRIEF
-               GOTO 8260
-            case (27)  ! READ
-               GOTO 8270
-            case (30)  ! SUSPEND
-               GOTO 8300
-            case (31)  ! HOURS
-               GOTO 8310
-            case (2, 3, 9, 10, 16, 17, 19, 21, 28, 29)
-               GOTO 8000
-            case default
-               CALL BUG(23)
-         end select
-
-      ELSE
+      select case (VERB)
+         case (1)  ! TAKE
+            GOTO 8010
+         case (4, 6)  ! OPEN, LOCK
+            GOTO 8040
+         case (5)  ! NOTHING
+            GOTO 2009
+         case (7)  ! ON
+            GOTO 9070
+         case (8)  ! OFF
+            GOTO 9080
+         case (11)  ! WALK
+            GOTO 2011
+         case (12)  ! KILL
+            GOTO 9120
+         case (13)  ! POUR
+            GOTO 9130
+         case (14)  ! EAT
+            GOTO 8140
+         case (15)  ! DRINK
+            GOTO 9150
+         case (18)  ! QUIT
+            GOTO 8180
+         case (20)  ! INVEN
+            GOTO 8200
+         case (22)  ! FILL
+            GOTO 9220
+         case (23)  ! BLAST
+            GOTO 9230
+         case (24)  ! SCORE
+            GOTO 8240
+         case (25)  ! FOO
+            GOTO 8250
+         case (26)  ! BRIEF
+            GOTO 8260
+         case (27)  ! READ
+            GOTO 8270
+         case (30)  ! SUSPEND
+            GOTO 8300
+         case (31)  ! HOURS
+            GOTO 8310
+         case (2, 3, 9, 10, 16, 17, 19, 21, 28, 29)
+            GOTO 8000
+         case default
+            CALL BUG(23)
+      end select
 
 !  ANALYSE A TRANSITIVE VERB.
 
-4090     select case (VERB)
-            case (1)  ! TAKE
-               GOTO 9010
-            case (2)  ! DROP
-               GOTO 9020
-            case (3)  ! SAY
-               GOTO 9030
-            case (4, 6)  ! OPEN, LOCK
-               GOTO 9040
-            case (5)  ! NOTHING
-               GOTO 2009
-            case (7)  ! ON
-               GOTO 9070
-            case (8)  ! OFF
-               GOTO 9080
-            case (9)  ! WAVE
-               GOTO 9090
-            case (12)  ! KILL
-               GOTO 9120
-            case (13)  ! POUR
-               GOTO 9130
-            case (14)  ! EAT
-               GOTO 9140
-            case (15)  ! DRINK
-               GOTO 9150
-            case (16)  ! RUB
-               GOTO 9160
-            case (17)  ! TOSS
-               GOTO 9170
-            case (19,20)  ! FIND, INVEN
-               GOTO 9190
-            case (21)  ! FEED
-               GOTO 9210
-            case (22)  ! FILL
-               GOTO 9220
-            case (23)  ! BLAST
-               GOTO 9230
-            case (27)  ! READ
-               GOTO 9270
-            case (28)  ! BREAK
-               GOTO 9280
-            case (29)  ! WAKE
-               GOTO 9290
-            case (10, 11, 18, 24, 25, 26, 30, 31)
-               GOTO 2011
-            case default
-               CALL BUG(24)
-         end select
-
-      END IF
+4090  select case (VERB)
+         case (1)  ! TAKE
+            GOTO 9010
+         case (2)  ! DROP
+            GOTO 9020
+         case (3)  ! SAY
+            GOTO 9030
+         case (4, 6)  ! OPEN, LOCK
+            GOTO 9040
+         case (5)  ! NOTHING
+            GOTO 2009
+         case (7)  ! ON
+            GOTO 9070
+         case (8)  ! OFF
+            GOTO 9080
+         case (9)  ! WAVE
+            GOTO 9090
+         case (12)  ! KILL
+            GOTO 9120
+         case (13)  ! POUR
+            GOTO 9130
+         case (14)  ! EAT
+            GOTO 9140
+         case (15)  ! DRINK
+            GOTO 9150
+         case (16)  ! RUB
+            GOTO 9160
+         case (17)  ! TOSS
+            GOTO 9170
+         case (19,20)  ! FIND, INVEN
+            GOTO 9190
+         case (21)  ! FEED
+            GOTO 9210
+         case (22)  ! FILL
+            GOTO 9220
+         case (23)  ! BLAST
+            GOTO 9230
+         case (27)  ! READ
+            GOTO 9270
+         case (28)  ! BREAK
+            GOTO 9280
+         case (29)  ! WAKE
+            GOTO 9290
+         case (10, 11, 18, 24, 25, 26, 30, 31)
+            GOTO 2011
+         case default
+            CALL BUG(24)
+      end select
 
 !  ANALYSE AN OBJECT WORD.  SEE IF THE THING IS HERE, WHETHER WE'VE GOT A VERB
 !  YET, AND SO ON.  OBJECT MUST BE HERE UNLESS VERB IS "FIND" OR "INVENT(ORY)"
