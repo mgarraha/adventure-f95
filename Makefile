@@ -5,7 +5,7 @@ FFLAGS = -fdefault-integer-8 -g
 
 all: advent porttest
 
-advent: port.o advn2.o wizcom.o adven.o
+advent: port.o advn2.o wizcom.o places.o adven.o
 	$(FC) -o $@ $^
 
 porttest: port.o advn2.o porttest.o
