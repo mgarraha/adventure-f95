@@ -19,7 +19,7 @@ contains
 
       CALL MOVE(OBJECT,0)
       RETURN
-   end subroutine
+   end subroutine DSTROY
 
 
    subroutine JUGGLE(OBJECT)
@@ -35,7 +35,7 @@ contains
       CALL MOVE(OBJECT,I)
       CALL MOVE(OBJECT+100,J)
       RETURN
-   end subroutine
+   end subroutine JUGGLE
 
 
    subroutine MOVE(OBJECT,WHERE)
@@ -47,15 +47,15 @@ contains
       INTEGER OBJECT,WHERE
       INTEGER FROM
 
-      IF (OBJECT.LE.100) THEN
+      if (OBJECT <= 100) then
          FROM=PLACE(OBJECT)
-      ELSE
+      else
          FROM=FIXED(OBJECT-100)
-      END IF
-      IF(FROM.GT.0.AND.FROM.LE.300)CALL CARRY(OBJECT,FROM)
+      end if
+      if (FROM > 0 .and. FROM <= 300) CALL CARRY(OBJECT,FROM)
       CALL DROP(OBJECT,WHERE)
       RETURN
-   end subroutine
+   end subroutine MOVE
 
 
    integer function PUT(OBJECT,WHERE,PVAL)
@@ -68,7 +68,7 @@ contains
       CALL MOVE(OBJECT,WHERE)
       PUT=(-1)-PVAL
       RETURN
-   end function
+   end function PUT
 
 
    subroutine CARRY(OBJECT,WHERE)
@@ -80,22 +80,22 @@ contains
       INTEGER OBJECT,WHERE
       INTEGER TEMP
 
-      IF (OBJECT.LE.100) THEN
-         IF(PLACE(OBJECT).EQ.-1)RETURN
+      if (OBJECT <= 100) then
+         if (PLACE(OBJECT) == -1) RETURN
          PLACE(OBJECT)=-1
          HOLDNG=HOLDNG+1
-      END IF
-      IF (ATLOC(WHERE).EQ.OBJECT) THEN
+      end if
+      if (ATLOC(WHERE) == OBJECT) then
          ATLOC(WHERE)=LINK(OBJECT)
          RETURN
-      END IF
+      end if
       TEMP=ATLOC(WHERE)
-      DO WHILE (LINK(TEMP).NE.OBJECT)
+      do while (LINK(TEMP) /= OBJECT)
          TEMP=LINK(TEMP)
-      END DO
+      end do
       LINK(TEMP)=LINK(OBJECT)
       RETURN
-   end subroutine
+   end subroutine CARRY
 
 
    subroutine DROP(OBJECT,WHERE)
@@ -105,16 +105,16 @@ contains
 
       INTEGER OBJECT,WHERE
       
-      IF (OBJECT.LE.100) THEN
-         IF(PLACE(OBJECT).EQ.-1)HOLDNG=HOLDNG-1
+      if (OBJECT <= 100) then
+         if (PLACE(OBJECT) == -1) HOLDNG=HOLDNG-1
          PLACE(OBJECT)=WHERE
-      ELSE
+      else
          FIXED(OBJECT-100)=WHERE
-      END IF
-      IF(WHERE.LE.0)RETURN
+      end if
+      if (WHERE <= 0) RETURN
       LINK(OBJECT)=ATLOC(WHERE)
       ATLOC(WHERE)=OBJECT
       RETURN
-   end subroutine
+   end subroutine DROP
 
-end module
+end module places

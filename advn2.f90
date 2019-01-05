@@ -19,21 +19,21 @@
       EXTERNAL IA5
       INTEGER IA5
 
-      IF(N.EQ.0)RETURN
-      IF(LINES(N+1).EQ.IA5('>$<  '))RETURN
-      IF(BLKLIN)PRINT 2
+      if (N == 0) RETURN
+      if (LINES(N+1) == IA5('>$<  ')) RETURN
+      if (BLKLIN) PRINT 2
       K=N
 1     L=ABS(LINES(K))-1
       K=K+1
       BUF=''
-      DO I=K,L
+      do I=K,L
          M=5*(I-K)
          BUF(M+1:M+5)=A5I(LINES(I))
-      END DO
+      end do
       PRINT 2,BUF
 2     FORMAT(' ',A)
       K=L+1
-      IF(LINES(K).GE.0)GOTO 1
+      if (LINES(K) >= 0) GOTO 1
       RETURN
       END
 
@@ -53,10 +53,10 @@
       DIMENSION RTEXT(205),LINES(9650),PTEXT(100)
 
       M=PTEXT(MSG)
-      DO I=0,SKIP
+      do I=0,SKIP
 1        M=ABS(LINES(M))
-         IF(LINES(M).GE.0)GOTO 1
-      END DO
+         if (LINES(M) >= 0) GOTO 1
+      end do
       CALL SPEAK(M)
       RETURN
       END
@@ -73,7 +73,7 @@
       INTEGER RTEXT,LINES
       DIMENSION RTEXT(205),LINES(9650)
 
-      IF(I.NE.0)CALL SPEAK(RTEXT(I))
+      if (I /= 0) CALL SPEAK(RTEXT(I))
       RETURN
       END
 
@@ -89,7 +89,7 @@
       INTEGER MTEXT
       DIMENSION MTEXT(35)
 
-      IF(I.NE.0)CALL SPEAK(MTEXT(I))
+      if (I /= 0) CALL SPEAK(MTEXT(I))
       RETURN
       END
 
@@ -117,21 +117,21 @@
       EXTERNAL IA5
       INTEGER IA5
 
-      IF(BLKLIN)PRINT 1
+      if (BLKLIN) PRINT 1
 1     FORMAT()
 2     READ 3,ITXT
 3     FORMAT(A20)
-      DO I=1,4
+      do I=1,4
          IWORD=ITXT(5*I-4:5*I)
          A(I)=IA5(IWORD)
-      END DO
+      end do
       J=0
-      DO I=1,4
-         IF(A(I).NE.BLANKS)J=1
+      do I=1,4
+         if (A(I) /= BLANKS)J=1
 !  convert lowercase to uppercase
          A(I)=IAND(A(I),IEOR(ISHFT(IAND(A(I),IA5('@@@@@')),-1),-1))
-      END DO
-      IF(BLKLIN.AND.J.EQ.0)GOTO 2
+      end do
+      if (BLKLIN .and. J == 0) GOTO 2
 
       SECOND=0
       WORD1=A(1)
@@ -141,11 +141,11 @@
       DO J=1,4
          DO K=1,5
             MSK=O"774000000000"
-            IF(K.NE.1)MSK=O"177"*MASKS(K)
+            if (K /= 1) MSK=O"177"*MASKS(K)
 !  is char K a blank?
-            IF (IAND(IEOR(A(J),BLANKS),MSK).NE.0) THEN
-               IF(SECOND.EQ.3)GOTO 20
-               IF (SECOND.NE.1) CYCLE
+            if (IAND(IEOR(A(J),BLANKS),MSK) /= 0) then
+               if (SECOND == 3) GOTO 20
+               if (SECOND /= 1) cycle
                MSK=-MASKS(6-K)
                MSK2=-2-MSK
                MSK=IAND(MSK,O"777777777776")
@@ -154,16 +154,16 @@
                WORD2X=IAND(ISHFT(A(J+1),7*(K-1)),MSK)  &
                      +IAND(ISHFT(A(J+2),7*(K-6)),(MSK2))
                SECOND=2
-               CYCLE
-            END IF
-            IF(SECOND.EQ.2)SECOND=3
-            IF (SECOND.NE.0) CYCLE
+               cycle
+            end if
+            if (SECOND == 2) SECOND=3
+            if (SECOND /= 0) cycle
             SECOND=1
 !  overwrite WORD1(K+1:) with blanks
-            IF(J.EQ.1)WORD1=IOR(IAND(WORD1,-MASKS(K)),  &
+            if (J == 1) WORD1=IOR(IAND(WORD1,-MASKS(K)),  &
                   IAND(BLANKS,IEOR(-MASKS(K),-1)))
-         END DO
-      END DO
+         end do
+      end do
       RETURN
 
 20    PRINT 21
@@ -215,18 +215,18 @@
       EXTERNAL IA5
       INTEGER IA5
 
-1     IF(X.NE.0)CALL SPK(X)
+1     if (X /= 0) CALL SPK(X)
       CALL GETIN(REPLY,JUNK1,JUNK2,JUNK3)
-      IF(REPLY.EQ.IA5('YES  ').OR.REPLY.EQ.IA5('Y    '))GOTO 10
-      IF(REPLY.EQ.IA5('NO   ').OR.REPLY.EQ.IA5('N    '))GOTO 20
+      if (REPLY == IA5('YES  ') .or. REPLY == IA5('Y    ')) GOTO 10
+      if (REPLY == IA5('NO   ') .or. REPLY == IA5('N    ')) GOTO 20
       PRINT 9
 9     FORMAT(/' PLEASE ANSWER THE QUESTION.')
       GOTO 1
-10    YESX=.TRUE.
-      IF(Y.NE.0)CALL SPK(Y)
+10    YESX=.true.
+      if (Y /= 0) CALL SPK(Y)
       RETURN
-20    YESX=.FALSE.
-      IF(Z.NE.0)CALL SPK(Z)
+20    YESX=.false.
+      if (Z /= 0) CALL SPK(Z)
       RETURN
       END
 
@@ -252,17 +252,17 @@
       WORDS(2)=B
       WORDS(3)=C
       POSN=1
-      DO WORD=1,3
-         IF (WORD.EQ.2.AND.POSN.NE.6) CYCLE
-         IF(WORD.EQ.3.AND.C.LT.0)POSN=POSN+1
-         DO CH=1,5
+      do WORD=1,3
+         if (WORD == 2 .and. POSN /= 6) cycle
+         if (WORD == 3 .and. C < 0)POSN=POSN+1
+         do CH=1,5
             CHARS(POSN)=ACHAR(ISHFT(IAND(WORDS(WORD),MASK),-29))
-            IF (CHARS(POSN).EQ.' ') EXIT
+            if (CHARS(POSN) == ' ') exit
             LENG=POSN
             WORDS(WORD)=ISHFT(WORDS(WORD),7)
             POSN=POSN+1
-         END DO
-      END DO
+         end do
+      end do
       RETURN
       END
 !  DATA STRUCTURE ROUTINES (VOCAB, DSTROY, JUGGLE, MOVE, PUT, CARRY, DROP)
@@ -287,19 +287,19 @@
       INTEGER IA5
 
       HASH=IEOR(ID,IA5('PHROG'))
-      DO I=1,TABSIZ
-         IF(KTAB(I).EQ.-1)GOTO 2
-         IF (INIT.GE.0.AND.KTAB(I)/1000.NE.INIT) CYCLE
-         IF(ATAB(I).EQ.HASH)GOTO 3
-      END DO
+      do I=1,TABSIZ
+         if (KTAB(I) == -1) GOTO 2
+         if (INIT >= 0 .and. KTAB(I)/1000 /= INIT) cycle
+         if (ATAB(I) == HASH) GOTO 3
+      end do
       CALL BUG(21)
 
 2     VOCAB=-1
-      IF(INIT.LT.0)RETURN
+      if (INIT < 0)RETURN
       CALL BUG(5)
 
 3     VOCAB=KTAB(I)
-      IF(INIT.GE.0)VOCAB=MOD(VOCAB,1000)
+      if (INIT >= 0)VOCAB=MOD(VOCAB,1000)
       RETURN
       END
 
@@ -328,14 +328,14 @@
       DATA R/0/
 
       D=1
-      IF (R.EQ.0) THEN
+      if (R == 0) then
          CALL DATIME(D,T)
          R=18*T+5
          D=1000+MOD(D,1000)
-      END IF
-      DO T=1,D
+      end if
+      do T=1,D
          R=MOD(R*1021,1048576)
-      END DO
+      end do
       RANI=(RANGE*R)/1048576
       RETURN
       END
@@ -360,14 +360,14 @@
       YEAR=DTTM(1)-1977
       D=DTTM(3)-1
       X=DTTM(2)
-      DO MON=1,12
-         IF(X.EQ.MON)GOTO 2
+      do MON=1,12
+         if (X == MON) GOTO 2
          D=D+HATH(MON)
-      END DO
+      end do
       CALL BUG(28)
 
 2     D=D+YEAR*365+YEAR/4
-      IF(MOD(YEAR,4).EQ.3.AND.MON.GT.2)D=D+1
+      if (MOD(YEAR,4) == 3 .and. MON > 2) D=D+1
       T=DTTM(5)*60+DTTM(6)
       RETURN
       END
@@ -385,7 +385,7 @@
       DATA K/32/
 
       CALL MSPEAK(K)
-      IF(K.EQ.31)CALL GETIN(A,B,C,D)
+      if (K == 31) CALL GETIN(A,B,C,D)
       STOP
       END
 

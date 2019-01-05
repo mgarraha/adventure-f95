@@ -34,7 +34,7 @@ program advent
 
       COMMON /BLKCOM/ BLKLIN
       LOGICAL BLKLIN
-      DATA BLKLIN/.TRUE./
+      DATA BLKLIN/.true./
 
       COMMON /VOCCOM/ KTAB,ATAB,TABSIZ
       INTEGER KTAB,ATAB,TABSIZ
@@ -216,7 +216,7 @@ program advent
 !  SECTION 0: END OF DATABASE.
 !  READ THE DATABASE IF WE HAVE NOT YET DONE SO
 
-      IF(SETUP.NE.0)GOTO 1100
+      if (SETUP /= 0) GOTO 1100
       PRINT 1000
 1000  FORMAT(' INITIALISING...')
 
@@ -230,17 +230,17 @@ program advent
 !  SECTION 6'S STUFF.  CTEXT(N) POINTS TO A PLAYER-CLASS MESSAGE.  MTEXT IS FOR
 !  SECTION 12.  WE ALSO CLEAR COND.  SEE DESCRIPTION OF SECTION 9 FOR DETAILS.
 
-      DO I=1,300
-         IF(I.LE.100)PTEXT(I)=0
-         IF(I.LE.RTXSIZ)RTEXT(I)=0
-         IF(I.LE.CLSMAX)CTEXT(I)=0
-         IF(I.LE.MAGSIZ)MTEXT(I)=0
-         IF (I.GT.LOCSIZ) CYCLE
+      do I=1,300
+         if (I <= 100) PTEXT(I)=0
+         if (I <= RTXSIZ) RTEXT(I)=0
+         if (I <= CLSMAX) CTEXT(I)=0
+         if (I <= MAGSIZ) MTEXT(I)=0
+         if (I > LOCSIZ) cycle
          STEXT(I)=0
          LTEXT(I)=0
          COND(I)=0
          KEY(I)=0
-      END DO
+      end do
       PLAC=0
       FIXD=0
 
@@ -278,61 +278,61 @@ program advent
 
 !  SECTIONS 1, 2, 5, 6, 10, 12.  READ MESSAGES AND SET UP POINTERS.
 
-1004  DO
+1004  do
          READ(1,'(A80)')TXT
          TAB=INDEX(TXT,ACHAR(9))
-         IF(TAB.EQ.0)TAB=LEN_TRIM(TXT)+1
+         if (TAB == 0) TAB=LEN_TRIM(TXT)+1
          EOL=LEN_TRIM(TXT)
          READ(TXT(:TAB-1),'(I4)')LOC
-         IF (LOC.EQ.-1) EXIT
-         DO J=1,15
+         if (LOC == -1) exit
+         do J=1,15
             K=TAB+5*J
-            IF (K-4.GT.EOL) THEN
+            if (K-4 > EOL) then
                LINES(LINUSE+J)=IA5('     ')
-            ELSE
+            else
                WORD=TXT(K-4:K)
                LINES(LINUSE+J)=IA5(WORD)
-            END IF
-         END DO
+            end if
+         end do
          KK=LINES(LINUSE+15)
 !        READ(TXT(TAB+1:),1005)(LINES(J),J=LINUSE+1,LINUSE+14),KK
 !1005    FORMAT(15A5)
-         IF(KK.NE.IA5('     '))CALL BUG(0)
-         DO K=1,14
+         if (KK /= IA5('     ')) CALL BUG(0)
+         do K=1,14
             KK=LINUSE+15-K
-            IF(LINES(KK).NE.IA5('     '))GOTO 1007
-         END DO
+            if (LINES(KK) /= IA5('     ')) GOTO 1007
+         end do
          ! AVOID F40 BUG IF CRLF BROKEN ACROSS RECORD BOUNDARY
-         IF (LOC.EQ.0) CYCLE
+         if (LOC == 0) cycle
          CALL BUG(1)
 1007     LINES(LINUSE)=KK+1
-         IF (LOC.NE.OLDLOC) THEN
+         if (LOC /= OLDLOC) then
             LINES(LINUSE)=-LINES(LINUSE)
             select case (SECT)
                case (1)
                   LTEXT(LOC)=LINUSE
                case (5)
-                  IF(LOC.GT.0.AND.LOC.LE.100)PTEXT(LOC)=LINUSE
+                  if (LOC > 0 .and. LOC <= 100) PTEXT(LOC)=LINUSE
                case (6)
-                  IF(LOC.GT.RTXSIZ)CALL BUG(6)
+                  if (LOC > RTXSIZ) CALL BUG(6)
                   RTEXT(LOC)=LINUSE
                case (10)
                   CTEXT(CLSSES)=LINUSE
                   CVAL(CLSSES)=LOC
                   CLSSES=CLSSES+1
                case (12)
-                  IF(LOC.GT.MAGSIZ)CALL BUG(6)
+                  if (LOC > MAGSIZ) CALL BUG(6)
                   MTEXT(LOC)=LINUSE
                case default
                   STEXT(LOC)=LINUSE
             end select
-         END IF
+         end if
 
          LINUSE=KK+1
          LINES(LINUSE)=-1
          OLDLOC=LOC
-         IF(LINUSE+14.GT.LINSIZ)CALL BUG(2)
-      END DO
+         if (LINUSE+14 > LINSIZ) CALL BUG(2)
+      end do
       GOTO 1002
 
 !  THE STUFF FOR SECTION 3 IS ENCODED HERE.  EACH "FROM-LOCATION" GETS A
@@ -341,26 +341,26 @@ program advent
 !  THIS IS THE LAST ENTRY FOR THIS LOCATION.  KEY(N) IS THE INDEX IN TRAVEL
 !  OF THE FIRST OPTION AT LOCATION N.
 
-1030  DO
+1030  do
          READ(1,'(A80)')TXT
          TK=0
          READ(TXT,*,IOSTAT=IOE)LOC,NEWLOC,TK
 1031     FORMAT(99I4)
-         IF (LOC.EQ.0) CYCLE  ! AVOID AFOREMENTIONED F40 BUG
-         IF (LOC.EQ.-1) EXIT
-         IF (KEY(LOC).EQ.0) THEN
+         if (LOC == 0) cycle  ! AVOID AFOREMENTIONED F40 BUG
+         if (LOC == -1) exit
+         if (KEY(LOC) == 0) then
             KEY(LOC)=TRVS
-         ELSE
+         else
             TRAVEL(TRVS-1)=-TRAVEL(TRVS-1)
-         END IF
-         DO L=1,20
-            IF (TK(L).EQ.0) EXIT
+         end if
+         do L=1,20
+            if (TK(L) == 0) exit
             TRAVEL(TRVS)=NEWLOC*1000+TK(L)
             TRVS=TRVS+1
-            IF(TRVS.EQ.TRVSIZ)CALL BUG(3)
-         END DO
+            if (TRVS == TRVSIZ) CALL BUG(3)
+         end do
          TRAVEL(TRVS-1)=-TRAVEL(TRVS-1)
-      END DO
+      end do
       GOTO 1002
 
 !  HERE WE READ IN THE VOCABULARY.  KTAB(N) IS THE WORD NUMBER, ATAB(N) IS
@@ -369,72 +369,72 @@ program advent
 !  CORE-IMAGE HARDER.  NOTE THAT '/7-08' HAD BETTER NOT BE IN THE LIST, SINCE
 !  IT COULD HASH TO -1.
 
-1040  DO TABNDX=1,TABSIZ
+1040  do TABNDX=1,TABSIZ
 1043     READ(1,'(A80)')TXT
          READ(TXT,*,IOSTAT=IOE)KTAB(TABNDX),WORD
          ATAB(TABNDX)=IA5(WORD)
 1041     FORMAT(I2,A5)
-         IF (KTAB(TABNDX).EQ.0) GOTO 1043  ! AVOID AFOREMENTIONED F40 BUG
-         IF (KTAB(TABNDX).EQ.-1) GOTO 1002
+         if (KTAB(TABNDX) == 0) GOTO 1043  ! AVOID AFOREMENTIONED F40 BUG
+         if (KTAB(TABNDX) == -1) GOTO 1002
          ATAB(TABNDX)=IEOR(ATAB(TABNDX),IA5('PHROG'))
-      END DO
+      end do
       CALL BUG(4)
 
 !  READ IN THE INITIAL LOCATIONS FOR EACH OBJECT.  ALSO THE IMMOVABILITY INFO.
 !  PLAC CONTAINS INITIAL LOCATIONS OF OBJECTS.  FIXD IS -1 FOR IMMOVABLE
 !  OBJECTS (INCLUDING THE SNAKE), OR = SECOND LOC FOR TWO-PLACED OBJECTS.
 
-1050  DO
+1050  do
          READ(1,'(A80)')TXT
          K=0
          READ(TXT,*,IOSTAT=IOE)OBJ,J,K
-         IF (OBJ.EQ.-1) EXIT
+         if (OBJ == -1) exit
          PLAC(OBJ)=J
          FIXD(OBJ)=K
-      END DO
+      end do
       GOTO 1002
 
 !  READ DEFAULT MESSAGE NUMBERS FOR ACTION VERBS, STORE IN ACTSPK.
 
-1060  DO
+1060  do
          READ(1,'(A80)')TXT
          READ(TXT,*,IOSTAT=IOE)VERB,J
-         IF (VERB.EQ.-1) EXIT
+         if (VERB == -1) exit
          ACTSPK(VERB)=J
-      END DO
+      end do
       GOTO 1002
 
 !  READ INFO ABOUT AVAILABLE LIQUIDS AND OTHER CONDITIONS, STORE IN COND.
 
-1070  DO
+1070  do
          READ(1,'(A80)')TXT
          TK=0
          READ(TXT,*,IOSTAT=IOE)K,TK
-         IF (K.EQ.-1) EXIT
-         DO I=1,20
+         if (K == -1) exit
+         do I=1,20
             LOC=TK(I)
-            IF (LOC.EQ.0) EXIT
-            IF(BITSET(LOC,K))CALL BUG(8)
+            if (LOC == 0) exit
+            if (BITSET(LOC,K)) CALL BUG(8)
             COND(LOC)=COND(LOC)+ISHFT(1,K)
-         END DO
-      END DO
+         end do
+      end do
       GOTO 1002
 
 !  READ DATA FOR HINTS.
 
 1080  HNTMAX=0
-      DO
+      do
          READ(1,'(A80)')TXT
          TK=0
          READ(TXT,*,IOSTAT=IOE)K,TK
-         IF (K.EQ.-1) EXIT
-         IF (K.EQ.0) CYCLE
-         IF(K.LT.0.OR.K.GT.HNTSIZ)CALL BUG(7)
-         DO I=1,4
+         if (K == -1) exit
+         if (K == 0) cycle
+         if (K < 0 .or. K > HNTSIZ) CALL BUG(7)
+         do I=1,4
             HINTS(K,I)=TK(I)
-         END DO
+         end do
          HNTMAX=MAX(HNTMAX,K)
-      END DO
+      end do
       GOTO 1002
 
 !  FINISH CONSTRUCTING INTERNAL DATA FORMAT
@@ -442,8 +442,8 @@ program advent
 !  IF SETUP=2 WE DON'T NEED TO DO THIS.  IT'S ONLY NECESSARY IF WE HAVEN'T DONE
 !  IT AT ALL OR IF THE PROGRAM HAS BEEN RUN SINCE THEN.
 
-1100  IF(SETUP.EQ.2)GOTO 1
-      IF(SETUP.EQ.-1)GOTO 8305
+1100  if (SETUP == 2) GOTO 1
+      if (SETUP == -1) GOTO 8305
 
 !  HAVING READ IN THE DATABASE, CERTAIN THINGS ARE NOW CONSTRUCTED.  PROPS ARE
 !  SET TO ZERO.  WE FINISH SETTING UP COND BY CHECKING FOR FORCED-MOTION TRAVEL
@@ -453,21 +453,21 @@ program advent
 !  CORRECT LINK TO USE.)  ABB IS ZEROED; IT CONTROLS WHETHER THE ABBREVIATED
 !  DESCRIPTION IS PRINTED.  COUNTS MOD 5 UNLESS "LOOK" IS USED.
 
-      DO I=1,100
+      do I=1,100
          PLACE(I)=0
          PROP(I)=0
          LINK(I)=0
          LINK(I+100)=0
-      END DO
+      end do
 
-      DO I=1,LOCSIZ
+      do I=1,LOCSIZ
          ABB(I)=0
-         IF (LTEXT(I).NE.0 .AND. KEY(I).NE.0) THEN
+         if (LTEXT(I) /= 0  .and.  KEY(I) /= 0) then
             K=KEY(I)
-            IF(MOD(ABS(TRAVEL(K)),1000).EQ.1)COND(I)=2
-         END IF
+            if (MOD(ABS(TRAVEL(K)),1000) == 1) COND(I)=2
+         end if
          ATLOC(I)=0
-      END DO
+      end do
 
 !  SET UP THE ATLOC AND LINK ARRAYS AS DESCRIBED ABOVE.  WE'LL USE THE DROP
 !  SUBROUTINE, WHICH PREFACES NEW OBJECTS ON THE LISTS.  SINCE WE WANT THINGS
@@ -476,18 +476,18 @@ program advent
 !  "PLAC" AND "FIXD".  ALSO, SINCE TWO-PLACED OBJECTS ARE TYPICALLY BEST
 !  DESCRIBED LAST, WE'LL DROP THEM FIRST.
 
-      DO I=1,100
+      do I=1,100
          K=101-I
-         IF (FIXD(K).LE.0) CYCLE
+         if (FIXD(K) <= 0) cycle
          CALL DROP(K+100,FIXD(K))
          CALL DROP(K,PLAC(K))
-      END DO
+      end do
 
-      DO I=1,100
+      do I=1,100
          K=101-I
          FIXED(K)=FIXD(K)
-         IF(PLAC(K).NE.0.AND.FIXD(K).LE.0)CALL DROP(K,PLAC(K))
-      END DO
+         if (PLAC(K) /= 0 .and. FIXD(K) <= 0) CALL DROP(K,PLAC(K))
+      end do
 
 !  TREASURES, AS NOTED EARLIER, ARE OBJECTS 50 THROUGH MAXTRS (CURRENTLY 79).
 !  THEIR PROPS ARE INITIALLY -1, AND ARE SET TO 0 THE FIRST TIME THEY ARE
@@ -498,18 +498,18 @@ program advent
       MAXTRS=79
       TALLY=0
       TALLY2=0
-      DO I=50,MAXTRS
-         IF(PTEXT(I).NE.0)PROP(I)=-1
+      do I=50,MAXTRS
+         if (PTEXT(I) /= 0) PROP(I)=-1
          TALLY=TALLY-PROP(I)
-      END DO
+      end do
 
 !  CLEAR THE HINT STUFF.  HINTLC(I) IS HOW LONG HE'S BEEN AT LOC WITH COND BIT
 !  I.  HINTED(I) IS TRUE IFF HINT I HAS BEEN USED.
 
-      DO I=1,HNTMAX
-         HINTED(I)=.FALSE.
+      do I=1,HNTMAX
+         HINTED(I)=.false.
          HINTLC(I)=0
-      END DO
+      end do
 
 !  DEFINE SOME HANDY MNEMONICS.  THESE CORRESPOND TO OBJECT NUMBERS.
 
@@ -597,9 +597,9 @@ program advent
 
       CHLOC=114
       CHLOC2=140
-      DO I=1,6
-         DSEEN(I)=.FALSE.
-      END DO
+      do I=1,6
+         DSEEN(I)=.false.
+      end do
       DFLAG=0
       DLOC(1)=19
       DLOC(2)=27
@@ -627,14 +627,14 @@ program advent
 !     LOGICALS WERE EXPLAINED EARLIER
 
       TURNS=0
-      LMWARN=.FALSE.
+      LMWARN=.false.
       IWEST=0
       KNFLOC=0
       DETAIL=0
       ABBNUM=5
-      DO I=0,4
-         IF(RTEXT(2*I+81).NE.0)MAXDIE=I+1
-      END DO
+      do I=0,4
+         if (RTEXT(2*I+81) /= 0) MAXDIE=I+1
+      end do
       NUMDIE=0
       HOLDNG=0
       DKILL=0
@@ -643,40 +643,40 @@ program advent
       CLOCK1=30
       CLOCK2=50
       SAVED=0
-      CLOSNG=.FALSE.
-      PANIC=.FALSE.
-      CLOSED=.FALSE.
-      GAVEUP=.FALSE.
-      SCORNG=.FALSE.
+      CLOSNG=.false.
+      PANIC=.false.
+      CLOSED=.false.
+      GAVEUP=.false.
+      SCORNG=.false.
 
 !  IF SETUP=1, REPORT ON AMOUNT OF ARRAYS ACTUALLY USED, TO PERMIT REDUCTIONS.
 
-      IF(SETUP.NE.1)GOTO 1
+      if (SETUP /= 1) GOTO 1
       SETUP=2
 
-      DO K=1,LOCSIZ
+      do K=1,LOCSIZ
          KK=LOCSIZ+1-K
-         IF(LTEXT(KK).NE.0) EXIT
-      END DO
+         if (LTEXT(KK) /= 0) exit
+      end do
 
       OBJ=0
-      DO K=1,100
-         IF(PTEXT(K).NE.0)OBJ=OBJ+1
-      END DO
+      do K=1,100
+         if (PTEXT(K) /= 0) OBJ=OBJ+1
+      end do
 
-      DO K=1,TABNDX
-         IF(KTAB(K)/1000.EQ.2)VERB=KTAB(K)-2000
-      END DO
+      do K=1,TABNDX
+         if (KTAB(K)/1000 == 2) VERB=KTAB(K)-2000
+      end do
 
-      DO K=1,RTXSIZ
+      do K=1,RTXSIZ
          J=RTXSIZ+1-K
-         IF (RTEXT(J).NE.0) EXIT
-      END DO
+         if (RTEXT(J) /= 0) exit
+      end do
 
-      DO K=1,MAGSIZ
+      do K=1,MAGSIZ
          I=MAGSIZ+1-K
-         IF (MTEXT(I).NE.0) EXIT
-      END DO
+         if (MTEXT(I) /= 0) exit
+      end do
 
       K=100
       PRINT 1999,LINUSE,LINSIZ,TRVS,TRVSIZ,TABNDX,TABSIZ,KK  &
@@ -702,36 +702,36 @@ program advent
 !  START-UP, DWARF STUFF
 
 1     DEMO=START()
-      CALL MOTD(.FALSE.)
+      CALL MOTD(.false.)
       I=RANI(1)
       HINTED(3)=YES(65,1,0)
       NEWLOC=1
       LOC=1
       SETUP=3
       LIMIT=330
-      IF(HINTED(3))LIMIT=1000
+      if (HINTED(3)) LIMIT=1000
 
 !  CAN'T LEAVE CAVE ONCE IT'S CLOSING (EXCEPT BY MAIN OFFICE).
 
-2     IF (NEWLOC.LT.9.AND.NEWLOC.NE.0.AND.CLOSNG) THEN
+2     if (NEWLOC < 9 .and. NEWLOC /= 0 .and. CLOSNG) then
          CALL RSPEAK(130)
          NEWLOC=LOC
-         IF(.NOT.PANIC)CLOCK2=15
-         PANIC=.TRUE.
-      END IF
+         if (.not.PANIC) CLOCK2=15
+         PANIC=.true.
+      end if
 
 !  SEE IF A DWARF HAS SEEN HIM AND HAS COME FROM WHERE HE WANTS TO GO.  IF SO,
 !  THE DWARF'S BLOCKING HIS WAY.  IF COMING FROM PLACE FORBIDDEN TO PIRATE
 !  (DWARVES ROOTED IN PLACE) LET HIM GET OUT (AND ATTACKED).
 
-      IF (.NOT.(NEWLOC.EQ.LOC.OR.FORCED(LOC).OR.BITSET(LOC,3))) THEN
-         DO I=1,5
-            IF (ODLOC(I).NE.NEWLOC.OR..NOT.DSEEN(I)) CYCLE
+      if (.not.(NEWLOC == LOC .or. FORCED(LOC) .or. BITSET(LOC,3))) then
+         do I=1,5
+            if (ODLOC(I) /= NEWLOC .or. .not.DSEEN(I)) cycle
             NEWLOC=LOC
             CALL RSPEAK(2)
-            EXIT
-         END DO
-      END IF
+            exit
+         end do
+      end if
       LOC=NEWLOC
 
 !  DWARF STUFF.  SEE EARLIER COMMENTS FOR DESCRIPTION OF VARIABLES.  REMEMBER
@@ -744,30 +744,30 @@ program advent
 !  DWARVES CAN'T MEET THE BEAR.  ALSO MEANS DWARVES WON'T FOLLOW HIM INTO DEAD
 !  END IN MAZE, BUT C'EST LA VIE.  THEY'LL WAIT FOR HIM OUTSIDE THE DEAD END.
 
-      IF(LOC.EQ.0.OR.FORCED(LOC).OR.BITSET(NEWLOC,3))GOTO 2000
-      IF(DFLAG.NE.0)GOTO 6000
-      IF(LOC.GE.15)DFLAG=1
+      if (LOC == 0 .or. FORCED(LOC) .or. BITSET(NEWLOC,3)) GOTO 2000
+      if (DFLAG /= 0) GOTO 6000
+      if (LOC >= 15) DFLAG=1
       GOTO 2000
 
 !  WHEN WE ENCOUNTER THE FIRST DWARF, WE KILL 0, 1, OR 2 OF THE 5 DWARVES.  IF
 !  ANY OF THE SURVIVORS IS AT LOC, REPLACE HIM WITH THE ALTERNATE.
 
-6000  IF (DFLAG.EQ.1) THEN
-         IF(LOC.LT.15.OR.PCT(95))GOTO 2000
+6000  if (DFLAG == 1) then
+         if (LOC < 15 .or. PCT(95)) GOTO 2000
          DFLAG=2
-         DO I=1,2
+         do I=1,2
             J=1+RANI(5)
 !  IF SAVED NOT = -1, HE BYPASSED THE "START" CALL.
-            IF(PCT(50).AND.SAVED.EQ.-1)DLOC(J)=0
-         END DO
-         DO I=1,5
-            IF(DLOC(I).EQ.LOC)DLOC(I)=DALTLC
+            if (PCT(50) .and. SAVED == -1) DLOC(J)=0
+         end do
+         do I=1,5
+            if (DLOC(I) == LOC) DLOC(I)=DALTLC
             ODLOC(I)=DLOC(I)
-         END DO
+         end do
          CALL RSPEAK(3)
          CALL DROP(AXE,LOC)
          GOTO 2000
-      END IF
+      end if
 
 !  THINGS ARE IN FULL SWING.  MOVE EACH DWARF AT RANDOM, EXCEPT IF HE'S SEEN US
 !  HE STICKS WITH US.  DWARVES NEVER GO TO LOCS <15.  IF WANDERING AT RANDOM,
@@ -777,70 +777,70 @@ program advent
 6010  DTOTAL=0
       ATTACK=0
       STICK=0
-      DO I=1,6
-         IF (DLOC(I).EQ.0) CYCLE
+      do I=1,6
+         if (DLOC(I) == 0) cycle
          J=1
          KK=DLOC(I)
          KK=KEY(KK)
-         IF (KK.NE.0) THEN
-            DO
+         if (KK /= 0) then
+            do
                NEWLOC=MOD(ABS(TRAVEL(KK))/1000,1000)
-               IF(.NOT.(NEWLOC.GT.300.OR.NEWLOC.LT.15.OR.NEWLOC.EQ.ODLOC(I)  &
-                     .OR.(J.GT.1.AND.NEWLOC.EQ.TK(J-1)).OR.J.GE.20  &
-                     .OR.NEWLOC.EQ.DLOC(I).OR.FORCED(NEWLOC)  &
-                     .OR.(I.EQ.6.AND.BITSET(NEWLOC,3))  &
-                     .OR.ABS(TRAVEL(KK))/1000000.EQ.100)) THEN
+               if (.not.(NEWLOC > 300 .or. NEWLOC < 15 .or. NEWLOC == ODLOC(I)  &
+                      .or. (J > 1 .and. NEWLOC == TK(J-1)) .or. J >= 20  &
+                      .or. NEWLOC == DLOC(I) .or. FORCED(NEWLOC)  &
+                      .or. (I == 6 .and. BITSET(NEWLOC,3))  &
+                      .or. ABS(TRAVEL(KK))/1000000 == 100)) then
                   TK(J)=NEWLOC
                   J=J+1
-               END IF
+               end if
                KK=KK+1
-               IF (TRAVEL(KK-1).LT.0) EXIT
-            END DO
-         END IF
+               if (TRAVEL(KK-1) < 0) exit
+            end do
+         end if
          TK(J)=ODLOC(I)
-         IF(J.GE.2)J=J-1
+         if (J >= 2) J=J-1
          J=1+RANI(J)
          ODLOC(I)=DLOC(I)
          DLOC(I)=TK(J)
-         DSEEN(I)=(DSEEN(I).AND.LOC.GE.15)  &
-               .OR.(DLOC(I).EQ.LOC.OR.ODLOC(I).EQ.LOC)
-         IF (.NOT.DSEEN(I)) CYCLE
+         DSEEN(I)=(DSEEN(I) .and. LOC >= 15)  &
+                .or. (DLOC(I) == LOC .or. ODLOC(I) == LOC)
+         if (.not.DSEEN(I)) cycle
          DLOC(I)=LOC
-         IF(I.NE.6)GOTO 6027
+         if (I /= 6) GOTO 6027
 
 !  THE PIRATE'S SPOTTED HIM.  HE LEAVES HIM ALONE ONCE WE'VE FOUND CHEST.
 !  K COUNTS IF A TREASURE IS HERE.  IF NOT, AND TALLY=TALLY2 PLUS ONE FOR AN
 !  UNSEEN CHEST, LET THE PIRATE BE SPOTTED.  USE PLACE(MESSAG) TO DETERMINE IF
 !  PIRATE'S BEEN SEEN, SINCE PLACE(CHEST)=0 COULD MEAN HE THREW IT TO TROLL.
 
-         IF (LOC.EQ.CHLOC.OR.PROP(CHEST).GE.0) CYCLE
+         if (LOC == CHLOC .or. PROP(CHEST) >= 0) cycle
          K=0
-         DO J=50,MAXTRS
+         do J=50,MAXTRS
 !  PIRATE WON'T TAKE PYRAMID FROM PLOVER ROOM OR DARK ROOM (TOO EASY!).
-            IF (J.NE.PYRAM.OR.(LOC.NE.PLAC(PYRAM)  &
-                  .AND.LOC.NE.PLAC(EMRALD))) THEN
-               IF(TOTING(J))GOTO 6022
-            END IF
-            IF(HERE(J))K=1
-         END DO
-         IF(TALLY.EQ.TALLY2+1.AND.K.EQ.0.AND.PLACE(MESSAG).EQ.0  &
-               .AND.HERE(LAMP).AND.PROP(LAMP).EQ.1)GOTO 6025
-         IF(ODLOC(6).NE.DLOC(6).AND.PCT(20))CALL RSPEAK(127)
-         CYCLE
+            if (J /= PYRAM .or. (LOC /= PLAC(PYRAM)  &
+                   .and. LOC /= PLAC(EMRALD))) then
+               if (TOTING(J)) GOTO 6022
+            end if
+            if (HERE(J))K=1
+         end do
+         if (TALLY == TALLY2+1 .and. K == 0 .and. PLACE(MESSAG) == 0  &
+                .and. HERE(LAMP) .and. PROP(LAMP) == 1) GOTO 6025
+         if (ODLOC(6) /= DLOC(6) .and. PCT(20)) CALL RSPEAK(127)
+         cycle
 
 6022     CALL RSPEAK(128)
-         IF(PLACE(MESSAG).EQ.0)CALL MOVE(CHEST,CHLOC)
+         if (PLACE(MESSAG) == 0) CALL MOVE(CHEST,CHLOC)
          CALL MOVE(MESSAG,CHLOC2)
-         DO J=50,MAXTRS
-            IF(J.EQ.PYRAM.AND.(LOC.EQ.PLAC(PYRAM)  &
-                  .OR.LOC.EQ.PLAC(EMRALD))) CYCLE
-            IF(AT(J).AND.FIXED(J).EQ.0)CALL CARRY(J,LOC)
-            IF(TOTING(J))CALL DROP(J,CHLOC)
-         END DO
+         do J=50,MAXTRS
+            if (J == PYRAM .and. (LOC == PLAC(PYRAM)  &
+                   .or. LOC == PLAC(EMRALD))) cycle
+            if (AT(J) .and. FIXED(J) == 0) CALL CARRY(J,LOC)
+            if (TOTING(J)) CALL DROP(J,CHLOC)
+         end do
 6024     DLOC(6)=CHLOC
          ODLOC(6)=CHLOC
-         DSEEN(6)=.FALSE.
-         CYCLE
+         DSEEN(6)=.false.
+         cycle
 
 6025     CALL RSPEAK(186)
          CALL MOVE(CHEST,CHLOC)
@@ -850,42 +850,42 @@ program advent
 !  THIS THREATENING LITTLE DWARF IS IN THE ROOM WITH HIM!
 
 6027     DTOTAL=DTOTAL+1
-         IF (ODLOC(I).EQ.DLOC(I)) THEN
+         if (ODLOC(I) == DLOC(I)) then
             ATTACK=ATTACK+1
-            IF(KNFLOC.GE.0)KNFLOC=LOC
-            IF(RANI(1000).LT.95*(DFLAG-2))STICK=STICK+1
-         END IF
-      END DO
+            if (KNFLOC >= 0) KNFLOC=LOC
+            if (RANI(1000) < 95*(DFLAG-2))STICK=STICK+1
+         end if
+      end do
 
 !  NOW WE KNOW WHAT'S HAPPENING.  LET'S TELL THE POOR SUCKER ABOUT IT.
 
-      IF(DTOTAL.EQ.0)GOTO 2000
-      IF (DTOTAL.NE.1) THEN
+      if (DTOTAL == 0) GOTO 2000
+      if (DTOTAL /= 1) then
          PRINT 67,DTOTAL
 67       FORMAT(/' THERE ARE ',I1,' THREATENING LITTLE DWARVES IN THE'  &
                ,' ROOM WITH YOU.')
-      ELSE
+      else
          CALL RSPEAK(4)
-      END IF
-      IF(ATTACK.EQ.0)GOTO 2000
-      IF(DFLAG.EQ.2)DFLAG=3
+      end if
+      if (ATTACK == 0) GOTO 2000
+      if (DFLAG == 2) DFLAG=3
 !  IF SAVED NOT = -1, HE BYPASSED THE "START" CALL.  DWARVES GET *VERY* MAD!
-      IF(SAVED.NE.-1)DFLAG=20
-      IF (ATTACK.EQ.1) THEN
+      if (SAVED /= -1) DFLAG=20
+      if (ATTACK == 1) then
          CALL RSPEAK(5)
          K=52
-      ELSE
+      else
          PRINT 78,ATTACK
 78       FORMAT(/' ',I1,' OF THEM THROW KNIVES AT YOU!')
          K=6
-      END IF
-      IF (STICK.LE.1) THEN
+      end if
+      if (STICK <= 1) then
          CALL RSPEAK(K+STICK)
-         IF(STICK.EQ.0)GOTO 2000
-      ELSE
+         if (STICK == 0) GOTO 2000
+      else
          PRINT 68,STICK
 68       FORMAT(/' ',I1,' OF THEM GET YOU!')
-      END IF
+      end if
       OLDLC2=LOC
       GOTO 99
 
@@ -893,18 +893,18 @@ program advent
 
 !  PRINT TEXT FOR CURRENT LOC.
 
-2000  IF(LOC.EQ.0)GOTO 99
+2000  if (LOC == 0) GOTO 99
       KK=STEXT(LOC)
-      IF(MOD(ABB(LOC),ABBNUM).EQ.0.OR.KK.EQ.0)KK=LTEXT(LOC)
-      IF (.NOT.FORCED(LOC) .AND. DARK()) THEN
-         IF(WZDARK.AND.PCT(35))GOTO 90
+      if (MOD(ABB(LOC),ABBNUM) == 0 .or. KK == 0) KK=LTEXT(LOC)
+      if (.not.FORCED(LOC) .and. DARK()) then
+         if (WZDARK .and. PCT(35)) GOTO 90
          KK=RTEXT(16)
-      END IF
-      IF(TOTING(BEAR))CALL RSPEAK(141)
+      end if
+      if (TOTING(BEAR)) CALL RSPEAK(141)
       CALL SPEAK(KK)
       K=1
-      IF(FORCED(LOC))GOTO 8
-      IF(LOC.EQ.33.AND.PCT(25).AND..NOT.CLOSNG)CALL RSPEAK(8)
+      if (FORCED(LOC)) GOTO 8
+      if (LOC == 33 .and. PCT(25) .and. .not.CLOSNG) CALL RSPEAK(8)
 
 !  PRINT OUT DESCRIPTIONS OF OBJECTS AT THIS LOCATION.  IF NOT CLOSING AND
 !  PROPERTY VALUE IS NEGATIVE, TALLY OFF ANOTHER TREASURE.  RUG IS SPECIAL
@@ -912,22 +912,22 @@ program advent
 !  SIMILARLY FOR CHAIN; PROP IS INITIALLY 1 (LOCKED TO BEAR).  THESE HACKS
 !  ARE BECAUSE PROP=0 IS NEEDED TO GET FULL SCORE.
 
-      IF(DARK())GOTO 2012
+      if (DARK()) GOTO 2012
       ABB(LOC)=ABB(LOC)+1
       I=ATLOC(LOC)
-2004  IF(I.EQ.0)GOTO 2012
+2004  if (I == 0) GOTO 2012
       OBJ=I
-      IF(OBJ.GT.100)OBJ=OBJ-100
-      IF(OBJ.EQ.STEPS.AND.TOTING(NUGGET))GOTO 2008
-      IF(PROP(OBJ).GE.0)GOTO 2006
-      IF(CLOSED)GOTO 2008
+      if (OBJ > 100) OBJ=OBJ-100
+      if (OBJ == STEPS .and. TOTING(NUGGET)) GOTO 2008
+      if (PROP(OBJ) >= 0) GOTO 2006
+      if (CLOSED) GOTO 2008
       PROP(OBJ)=0
-      IF(OBJ.EQ.RUG.OR.OBJ.EQ.CHAIN)PROP(OBJ)=1
+      if (OBJ == RUG .or. OBJ == CHAIN) PROP(OBJ)=1
       TALLY=TALLY-1
 !  IF REMAINING TREASURES TOO ELUSIVE, ZAP HIS LAMP.
-      IF(TALLY.EQ.TALLY2.AND.TALLY.NE.0)LIMIT=MIN(35,LIMIT)
+      if (TALLY == TALLY2 .and. TALLY /= 0) LIMIT=MIN(35,LIMIT)
 2006  KK=PROP(OBJ)
-      IF(OBJ.EQ.STEPS.AND.LOC.EQ.FIXED(STEPS))KK=1
+      if (OBJ == STEPS .and. LOC == FIXED(STEPS)) KK=1
       CALL PSPEAK(OBJ,KK)
 2008  I=LINK(I)
       GOTO 2004
@@ -944,12 +944,12 @@ program advent
 !  BRANCH TO HELP SECTION (ON LATER PAGE).  HINTS ALL COME BACK HERE EVENTUALLY
 !  TO FINISH THE LOOP.  IGNORE "HINTS" < 4 (SPECIAL STUFF, SEE DATABASE NOTES).
 
-2600  DO HINT=4,HNTMAX
-         IF (HINTED(HINT)) CYCLE
-         IF(.NOT.BITSET(LOC,HINT))HINTLC(HINT)=-1
+2600  do HINT=4,HNTMAX
+         if (HINTED(HINT)) cycle
+         if (.not.BITSET(LOC,HINT)) HINTLC(HINT)=-1
          HINTLC(HINT)=HINTLC(HINT)+1
-         IF(HINTLC(HINT).GE.HINTS(HINT,1))GOTO 40000
-      END DO
+         if (HINTLC(HINT) >= HINTS(HINT,1)) GOTO 40000
+      end do
 2602  CONTINUE
 
 !  KICK THE RANDOM NUMBER GENERATOR JUST TO ADD VARIETY TO THE CHASE.  ALSO,
@@ -958,15 +958,15 @@ program advent
 !  BEEN PICKED UP AND PUT DOWN SEPARATE FROM THEIR RESPECTIVE PILES.  DON'T
 !  TICK CLOCK1 UNLESS WELL INTO CAVE (AND NOT AT Y2).
 
-      IF (CLOSED) THEN
-         IF(PROP(OYSTER).LT.0.AND.TOTING(OYSTER))  &
+      if (CLOSED) then
+         if (PROP(OYSTER) < 0 .and. TOTING(OYSTER))  &
                CALL PSPEAK(OYSTER,1)
-         DO I=1,100
-            IF(TOTING(I).AND.PROP(I).LT.0)PROP(I)=-1-PROP(I)
-         END DO
-      END IF
+         do I=1,100
+            if (TOTING(I) .and. PROP(I) < 0) PROP(I)=-1-PROP(I)
+         end do
+      end if
       WZDARK=DARK()
-      IF(KNFLOC.GT.0.AND.KNFLOC.NE.LOC)KNFLOC=0
+      if (KNFLOC > 0 .and. KNFLOC /= LOC) KNFLOC=0
       I=RANI(1)
       CALL GETIN(WD1,WD1X,WD2,WD2X)
 
@@ -974,43 +974,43 @@ program advent
 !  MAKE NEG.  IF NEG, HE SKIPPED A WORD, SO MAKE IT ZERO.
 
 2608  FOOBAR=MIN(0,-FOOBAR)
-      IF(TURNS.EQ.0.AND.WD1.EQ.IA5('MAGIC').AND.WD2.EQ.IA5('MODE '))  &
-              CALL MAINT
+      if (TURNS == 0 .and. WD1 == IA5('MAGIC') .and. WD2 == IA5('MODE '))  &
+            CALL MAINT
       TURNS=TURNS+1
-      IF(DEMO.AND.TURNS.GE.SHORT)GOTO 13000
-      IF(TURNS.EQ.3)CALL DATIME(XXD,XXT)
-      IF (TURNS.EQ.45) THEN
+      if (DEMO .and. TURNS >= SHORT) GOTO 13000
+      if (TURNS == 3) CALL DATIME(XXD,XXT)
+      if (TURNS == 45) then
 !  SEE IF TIMER UUO HAS BEEN ZAPPED; IF SO, HE'S CHEATING.
          CALL DATIME(YYD,YYT)
-         IF(XXD.EQ.YYD.AND.XXT.EQ.YYT)SAVED=0
-      END IF
-      IF(VERB.EQ.SAY.AND.WD2.NE.0)VERB=0
-      IF(VERB.EQ.SAY)GOTO 4090
-      IF(TALLY.EQ.0.AND.LOC.GE.15.AND.LOC.NE.33)CLOCK1=CLOCK1-1
-      IF(CLOCK1.EQ.0)GOTO 10000
-      IF(CLOCK1.LT.0)CLOCK2=CLOCK2-1
-      IF(CLOCK2.EQ.0)GOTO 11000
-      IF(PROP(LAMP).EQ.1)LIMIT=LIMIT-1
-      IF(LIMIT.LE.30.AND.HERE(BATTER).AND.PROP(BATTER).EQ.0  &
-              .AND.HERE(LAMP))GOTO 12000
-      IF(LIMIT.EQ.0)GOTO 12400
-      IF(LIMIT.LT.0.AND.LOC.LE.8)GOTO 12600
-      IF(LIMIT.LE.30)GOTO 12200
+         if (XXD == YYD .and. XXT == YYT) SAVED=0
+      end if
+      if (VERB == SAY .and. WD2 /= 0) VERB=0
+      if (VERB == SAY) GOTO 4090
+      if (TALLY == 0 .and. LOC >= 15 .and. LOC /= 33) CLOCK1=CLOCK1-1
+      if (CLOCK1 == 0) GOTO 10000
+      if (CLOCK1 < 0) CLOCK2=CLOCK2-1
+      if (CLOCK2 == 0) GOTO 11000
+      if (PROP(LAMP) == 1) LIMIT=LIMIT-1
+      if (LIMIT <= 30 .and. HERE(BATTER) .and. PROP(BATTER) == 0  &
+            .and. HERE(LAMP)) GOTO 12000
+      if (LIMIT == 0) GOTO 12400
+      if (LIMIT < 0 .and. LOC <= 8) GOTO 12600
+      if (LIMIT <= 30) GOTO 12200
 19999 K=43
-      IF(LIQLOC(LOC).EQ.WATER)K=70
-      IF(WD1.EQ.IA5('ENTER').AND.(WD2.EQ.IA5('STREA')  &
-              .OR.WD2.EQ.IA5('WATER')))GOTO 2010
-      IF(WD1.EQ.IA5('ENTER').AND.WD2.NE.0)GOTO 2800
-      IF ((WD1.EQ.IA5('WATER').OR.WD1.EQ.IA5('OIL  '))  &
-            .AND.(WD2.EQ.IA5('PLANT').OR.WD2.EQ.IA5('DOOR '))) THEN
-         IF(AT(VOCAB(WD2,1)))WD2=IA5('POUR ')
-      END IF
-2610  IF (WD1.EQ.IA5('WEST ')) THEN
+      if (LIQLOC(LOC) == WATER) K=70
+      if (WD1 == IA5('ENTER') .and. (WD2 == IA5('STREA')  &
+            .or. WD2 == IA5('WATER'))) GOTO 2010
+      if (WD1 == IA5('ENTER') .and. WD2 /= 0) GOTO 2800
+      if ((WD1 == IA5('WATER') .or. WD1 == IA5('OIL  '))  &
+            .and. (WD2 == IA5('PLANT') .or. WD2 == IA5('DOOR '))) then
+         if (AT(VOCAB(WD2,1)))WD2=IA5('POUR ')
+      end if
+2610  if (WD1 == IA5('WEST ')) then
          IWEST=IWEST+1
-         IF(IWEST.EQ.10)CALL RSPEAK(17)
-      END IF
+         if (IWEST == 10) CALL RSPEAK(17)
+      end if
 2630  I=VOCAB(WD1,-1)
-      IF(I.EQ.-1)GOTO 3000
+      if (I == -1) GOTO 3000
       K=MOD(I,1000)
       KQ=I/1000+1
       select case (KQ)
@@ -1045,9 +1045,9 @@ program advent
 
 4000  VERB=K
       SPK=ACTSPK(VERB)
-      IF(WD2.NE.0.AND.VERB.NE.SAY)GOTO 2800
-      IF(VERB.EQ.SAY)OBJ=WD2
-      IF(OBJ.NE.0)GOTO 4090
+      if (WD2 /= 0 .and. VERB /= SAY) GOTO 2800
+      if (VERB == SAY) OBJ=WD2
+      if (OBJ /= 0) GOTO 4090
 
 !  ANALYSE AN INTRANSITIVE VERB (IE, NO OBJECT GIVEN YET).
 
@@ -1156,36 +1156,36 @@ program advent
 !  THE BOTTLE OR AS A FEATURE OF THE LOCATION.
 
 5000  OBJ=K
-      IF(FIXED(K).NE.LOC.AND..NOT.HERE(K))GOTO 5100
-5010  IF(WD2.NE.0)GOTO 2800
-      IF(VERB.NE.0)GOTO 4090
+      if (FIXED(K) /= LOC .and. .not.HERE(K)) GOTO 5100
+5010  if (WD2 /= 0) GOTO 2800
+      if (VERB /= 0) GOTO 4090
       CALL A5TOA1(WD1,WD1X,IA5('?'),CAT,K)
       PRINT 5015,(CAT(I),I=1,K)
 5015  FORMAT(/' WHAT DO YOU WANT TO DO WITH THE ',20A1)
       GOTO 2600
 
-5100  IF (K.EQ.GRATE) THEN
-         IF(LOC.EQ.1.OR.LOC.EQ.4.OR.LOC.EQ.7)K=DPRSSN
-         IF(LOC.GT.9.AND.LOC.LT.15)K=ENTRNC
-         IF(K.NE.GRATE)GOTO 8
-      ELSE IF (K.EQ.DWARF) THEN
-         DO I=1,5
-            IF(DLOC(I).EQ.LOC.AND.DFLAG.GE.2)GOTO 5010
-         END DO
-      END IF
-      IF((LIQ().EQ.K.AND.HERE(BOTTLE)).OR.K.EQ.LIQLOC(LOC))GOTO 5010
-      IF (OBJ.EQ.PLANT.AND.AT(PLANT2).AND.PROP(PLANT2).NE.0) THEN
+5100  if (K == GRATE) then
+         if (LOC == 1 .or. LOC == 4 .or. LOC == 7) K=DPRSSN
+         if (LOC > 9 .and. LOC < 15) K=ENTRNC
+         if (K /= GRATE) GOTO 8
+      else if (K == DWARF) then
+         do I=1,5
+            if (DLOC(I) == LOC .and. DFLAG >= 2) GOTO 5010
+         end do
+      end if
+      if ((LIQ() == K .and. HERE(BOTTLE)) .or. K == LIQLOC(LOC)) GOTO 5010
+      if (OBJ == PLANT .and. AT(PLANT2) .and. PROP(PLANT2) /= 0) then
          OBJ=PLANT2
          GOTO 5010
-      ELSE IF (OBJ.EQ.KNIFE.AND.KNFLOC.EQ.LOC) THEN
+      else if (OBJ == KNIFE .and. KNFLOC == LOC) then
          KNFLOC=-1
          SPK=116
          GOTO 2011
-      ELSE IF (OBJ.EQ.ROD.AND.HERE(ROD2)) THEN
+      else if (OBJ == ROD .and. HERE(ROD2)) then
          OBJ=ROD2
          GOTO 5010
-      END IF
-5190  IF((VERB.EQ.FIND.OR.VERB.EQ.INVENT).AND.WD2.EQ.0)GOTO 5010
+      end if
+5190  if ((VERB == FIND .or. VERB == INVENT) .and. WD2 == 0) GOTO 5010
       CALL A5TOA1(WD1,WD1X,IA5('HERE.'),CAT,K)
       PRINT 5199,(CAT(I),I=1,K)
 5199  FORMAT(/' I SEE NO ',20A1)
@@ -1200,40 +1200,40 @@ program advent
 
 8     KK=KEY(LOC)
       NEWLOC=LOC
-      IF(KK.EQ.0)CALL BUG(26)
-      IF(K.EQ.NOOP)GOTO 2
-      IF(K.EQ.BACK)GOTO 20
-      IF(K.EQ.LOOK)GOTO 30
-      IF(K.EQ.CAVE)GOTO 40
+      if (KK == 0) CALL BUG(26)
+      if (K == NOOP) GOTO 2
+      if (K == BACK) GOTO 20
+      if (K == LOOK) GOTO 30
+      if (K == CAVE) GOTO 40
       OLDLC2=OLDLOC
       OLDLOC=LOC
 
 9     LL=ABS(TRAVEL(KK))
-      IF(MOD(LL,1000).EQ.1.OR.MOD(LL,1000).EQ.K)GOTO 10
-      IF(TRAVEL(KK).LT.0)GOTO 50
+      if (MOD(LL,1000) == 1 .or. MOD(LL,1000) == K) GOTO 10
+      if (TRAVEL(KK) < 0) GOTO 50
       KK=KK+1
       GOTO 9
 
 10    LL=LL/1000
 11    NEWLOC=LL/1000
       K=MOD(NEWLOC,100)
-      IF(NEWLOC.LE.300)GOTO 13
-      IF(PROP(K).NE.NEWLOC/100-3)GOTO 16
-12    IF(TRAVEL(KK).LT.0)CALL BUG(25)
+      if (NEWLOC <= 300) GOTO 13
+      if (PROP(K) /= NEWLOC/100-3) GOTO 16
+12    if (TRAVEL(KK) < 0) CALL BUG(25)
       KK=KK+1
       NEWLOC=ABS(TRAVEL(KK))/1000
-      IF(NEWLOC.EQ.LL)GOTO 12
+      if (NEWLOC == LL) GOTO 12
       LL=NEWLOC
       GOTO 11
 
-13    IF(NEWLOC.LE.100)GOTO 14
-      IF(TOTING(K).OR.(NEWLOC.GT.200.AND.AT(K)))GOTO 16
+13    if (NEWLOC <= 100) GOTO 14
+      if (TOTING(K) .or. (NEWLOC > 200 .and. AT(K))) GOTO 16
       GOTO 12
 
-14    IF(NEWLOC.NE.0.AND..NOT.PCT(NEWLOC))GOTO 12
+14    if (NEWLOC /= 0 .and. .not.PCT(NEWLOC)) GOTO 12
 16    NEWLOC=MOD(LL,1000)
-      IF(NEWLOC.LE.300)GOTO 2
-      IF(NEWLOC.LE.500)GOTO 30000
+      if (NEWLOC <= 300) GOTO 2
+      if (NEWLOC <= 500) GOTO 30000
       CALL RSPEAK(NEWLOC-500)
       NEWLOC=LOC
       GOTO 2
@@ -1258,10 +1258,10 @@ program advent
 !  BE USED FOR ACTUAL MOTION, BUT CAN BE SPOTTED BY "GO BACK".
 
 30100 NEWLOC=99+100-LOC
-      IF (.NOT.(HOLDNG.EQ.0.OR.(HOLDNG.EQ.1.AND.TOTING(EMRALD)))) THEN
+      if (.not.(HOLDNG == 0 .or. (HOLDNG == 1 .and. TOTING(EMRALD)))) then
          NEWLOC=LOC
          CALL RSPEAK(117)
-      END IF
+      end if
       GOTO 2
 
 !  TRAVEL 302.  PLOVER TRANSPORT.  DROP THE EMERALD (ONLY USE SPECIAL TRAVEL IF
@@ -1277,7 +1277,7 @@ program advent
 !  PROP(TROLL)=1, HE'S CROSSED SINCE PAYING, SO STEP OUT AND BLOCK HIM.
 !  (STANDARD TRAVEL ENTRIES CHECK FOR PROP(TROLL)=0.)  SPECIAL STUFF FOR BEAR.
 
-30300 IF (PROP(TROLL).EQ.1) THEN
+30300 if (PROP(TROLL) == 1) then
          CALL PSPEAK(TROLL,1)
          PROP(TROLL)=0
          CALL MOVE(TROLL2,0)
@@ -1287,20 +1287,20 @@ program advent
          CALL JUGGLE(CHASM)
          NEWLOC=LOC
          GOTO 2
-      ELSE
+      else
          NEWLOC=PLAC(TROLL)+FIXD(TROLL)-LOC
-         IF(PROP(TROLL).EQ.0)PROP(TROLL)=1
-         IF(.NOT.TOTING(BEAR))GOTO 2
+         if (PROP(TROLL) == 0) PROP(TROLL)=1
+         if (.not.TOTING(BEAR)) GOTO 2
          CALL RSPEAK(162)
          PROP(CHASM)=1
          PROP(TROLL)=2
          CALL DROP(BEAR,NEWLOC)
          FIXED(BEAR)=-1
          PROP(BEAR)=3
-         IF(PROP(SPICES).LT.0)TALLY2=TALLY2+1
+         if (PROP(SPICES) < 0) TALLY2=TALLY2+1
          OLDLC2=NEWLOC
          GOTO 99
-      END IF
+      end if
 
 !  END OF SPECIALS.
 
@@ -1308,32 +1308,32 @@ program advent
 !  IF OLDLOC HAS FORCED-MOTION.  K2 SAVES ENTRY -> FORCED LOC -> PREVIOUS LOC.
 
 20    K=OLDLOC
-      IF(FORCED(K))K=OLDLC2
+      if (FORCED(K)) K=OLDLC2
       OLDLC2=OLDLOC
       OLDLOC=LOC
       K2=0
-      IF (K.EQ.LOC) THEN
+      if (K == LOC) then
          CALL RSPEAK(91)
          GOTO 2
-      END IF
+      end if
 
 21    LL=MOD((ABS(TRAVEL(KK))/1000),1000)
-      IF (LL.NE.K) THEN
-         IF (LL.LE.300) THEN
+      if (LL /= K) then
+         if (LL <= 300) then
             J=KEY(LL)
-            IF(FORCED(LL).AND.MOD((ABS(TRAVEL(J))/1000),1000).EQ.K)K2=KK
-         END IF
-         IF (TRAVEL(KK).GE.0) THEN
+            if (FORCED(LL) .and. MOD((ABS(TRAVEL(J))/1000),1000) == K) K2=KK
+         end if
+         if (TRAVEL(KK) >= 0) then
             KK=KK+1
             GOTO 21
-         END IF
+         end if
 
          KK=K2
-         IF (KK.EQ.0) THEN
+         if (KK == 0) then
             CALL RSPEAK(140)
             GOTO 2
-         END IF
-      END IF
+         end if
+      end if
 
       K=MOD(ABS(TRAVEL(KK)),1000)
       KK=KEY(LOC)
@@ -1342,28 +1342,28 @@ program advent
 !  LOOK.  CAN'T GIVE MORE DETAIL.  PRETEND IT WASN'T DARK (THOUGH IT MAY "NOW"
 !  BE DARK) SO HE WON'T FALL INTO A PIT WHILE STARING INTO THE GLOOM.
 
-30    IF(DETAIL.LT.3)CALL RSPEAK(15)
+30    if (DETAIL < 3) CALL RSPEAK(15)
       DETAIL=DETAIL+1
-      WZDARK=.FALSE.
+      WZDARK=.false.
       ABB(LOC)=0
       GOTO 2
 
 !  CAVE.  DIFFERENT MESSAGES DEPENDING ON WHETHER ABOVE GROUND.
 
-40    IF(LOC.LT.8)CALL RSPEAK(57)
-      IF(LOC.GE.8)CALL RSPEAK(58)
+40    if (LOC < 8) CALL RSPEAK(57)
+      if (LOC >= 8) CALL RSPEAK(58)
       GOTO 2
 
 !  NON-APPLICABLE MOTION.  VARIOUS MESSAGES DEPENDING ON WORD GIVEN.
 
 50    SPK=12
-      IF(K.GE.43.AND.K.LE.50)SPK=9
-      IF(K.EQ.29.OR.K.EQ.30)SPK=9
-      IF(K.EQ.7.OR.K.EQ.36.OR.K.EQ.37)SPK=10
-      IF(K.EQ.11.OR.K.EQ.19)SPK=11
-      IF(VERB.EQ.FIND.OR.VERB.EQ.INVENT)SPK=59
-      IF(K.EQ.62.OR.K.EQ.65)SPK=42
-      IF(K.EQ.17)SPK=80
+      if (K >= 43 .and. K <= 50) SPK=9
+      if (K == 29 .or. K == 30) SPK=9
+      if (K == 7 .or. K == 36 .or. K == 37) SPK=10
+      if (K == 11 .or. K == 19) SPK=11
+      if (VERB == FIND .or. VERB == INVENT) SPK=59
+      if (K == 62 .or. K == 65) SPK=42
+      if (K == 17) SPK=80
       CALL RSPEAK(SPK)
       GOTO 2
 !  "YOU'RE DEAD, JIM."
@@ -1390,31 +1390,31 @@ program advent
 
 !  OKAY, HE'S DEAD.  LET'S GET ON WITH IT.
 
-99    IF (.NOT.CLOSNG) THEN
+99    if (.not.CLOSNG) then
          YEA=YES(81+NUMDIE*2,82+NUMDIE*2,54)
          NUMDIE=NUMDIE+1
-         IF(NUMDIE.EQ.MAXDIE.OR..NOT.YEA)GOTO 20000
+         if (NUMDIE == MAXDIE .or. .not.YEA) GOTO 20000
          PLACE(WATER)=0
          PLACE(OIL)=0
-         IF(TOTING(LAMP))PROP(LAMP)=0
-         DO J=1,100
+         if (TOTING(LAMP)) PROP(LAMP)=0
+         do J=1,100
             I=101-J
-            IF (.NOT.TOTING(I)) CYCLE
+            if (.not.TOTING(I)) cycle
             K=OLDLC2
-            IF(I.EQ.LAMP)K=1
+            if (I == LAMP) K=1
             CALL DROP(I,K)
-         END DO
+         end do
          LOC=3
          OLDLOC=LOC
          GOTO 2000
-      ELSE
+      else
 
 !  HE DIED DURING CLOSING TIME.  NO RESURRECTION.  TALLY UP A DEATH AND EXIT.
 
          CALL RSPEAK(131)
          NUMDIE=NUMDIE+1
          GOTO 20000
-      END IF
+      end if
 
 !  ROUTINES FOR PERFORMING THE VARIOUS ACTION VERBS
 
@@ -1432,84 +1432,84 @@ program advent
 
 !  CARRY, NO OBJECT GIVEN YET.  OK IF ONLY ONE OBJECT PRESENT.
 
-8010  IF(ATLOC(LOC).EQ.0.OR.LINK(ATLOC(LOC)).NE.0)GOTO 8000
-      DO I=1,5
-         IF(DLOC(I).EQ.LOC.AND.DFLAG.GE.2)GOTO 8000
-      END DO
+8010  if (ATLOC(LOC) == 0 .or. LINK(ATLOC(LOC)) /= 0) GOTO 8000
+      do I=1,5
+         if (DLOC(I) == LOC .and. DFLAG >= 2) GOTO 8000
+      end do
       OBJ=ATLOC(LOC)
 
 !  CARRY AN OBJECT.  SPECIAL CASES FOR BIRD AND CAGE (IF BIRD IN CAGE, CAN'T
 !  TAKE ONE WITHOUT THE OTHER).  LIQUIDS ALSO SPECIAL, SINCE THEY DEPEND ON
 !  STATUS OF BOTTLE.  ALSO VARIOUS SIDE EFFECTS, ETC.
 
-9010  IF(TOTING(OBJ))GOTO 2011
+9010  if (TOTING(OBJ)) GOTO 2011
       SPK=25
-      IF(OBJ.EQ.PLANT.AND.PROP(PLANT).LE.0)SPK=115
-      IF(OBJ.EQ.BEAR.AND.PROP(BEAR).EQ.1)SPK=169
-      IF(OBJ.EQ.CHAIN.AND.PROP(BEAR).NE.0)SPK=170
-      IF(FIXED(OBJ).NE.0)GOTO 2011
-      IF(OBJ.NE.WATER.AND.OBJ.NE.OIL)GOTO 9017
-      IF(HERE(BOTTLE).AND.LIQ().EQ.OBJ)GOTO 9018
+      if (OBJ == PLANT .and. PROP(PLANT) <= 0) SPK=115
+      if (OBJ == BEAR .and. PROP(BEAR) == 1) SPK=169
+      if (OBJ == CHAIN .and. PROP(BEAR) /= 0) SPK=170
+      if (FIXED(OBJ) /= 0) GOTO 2011
+      if (OBJ /= WATER .and. OBJ /= OIL) GOTO 9017
+      if (HERE(BOTTLE) .and. LIQ() == OBJ) GOTO 9018
       OBJ=BOTTLE
-      IF(TOTING(BOTTLE).AND.PROP(BOTTLE).EQ.1)GOTO 9220
-      IF(PROP(BOTTLE).NE.1)SPK=105
-      IF(.NOT.TOTING(BOTTLE))SPK=104
+      if (TOTING(BOTTLE) .and. PROP(BOTTLE) == 1) GOTO 9220
+      if (PROP(BOTTLE) /= 1) SPK=105
+      if (.not.TOTING(BOTTLE)) SPK=104
       GOTO 2011
 9018  OBJ=BOTTLE
-9017  IF (HOLDNG.GE.7) THEN
+9017  if (HOLDNG >= 7) then
          CALL RSPEAK(92)
          GOTO 2012
-      END IF
-      IF (OBJ.EQ.BIRD .AND. PROP(BIRD).EQ.0) THEN
-         IF (TOTING(ROD)) THEN
+      end if
+      if (OBJ == BIRD  .and.  PROP(BIRD) == 0) then
+         if (TOTING(ROD)) then
             CALL RSPEAK(26)
             GOTO 2012
-         END IF
-         IF (.NOT.TOTING(CAGE)) THEN
+         end if
+         if (.not.TOTING(CAGE)) then
             CALL RSPEAK(27)
             GOTO 2012
-         END IF
+         end if
          PROP(BIRD)=1
-      END IF
-      IF((OBJ.EQ.BIRD.OR.OBJ.EQ.CAGE).AND.PROP(BIRD).NE.0)  &
-              CALL CARRY(BIRD+CAGE-OBJ,LOC)
+      end if
+      if ((OBJ == BIRD .or. OBJ == CAGE) .and. PROP(BIRD) /= 0)  &
+            CALL CARRY(BIRD+CAGE-OBJ,LOC)
       CALL CARRY(OBJ,LOC)
       K=LIQ()
-      IF(OBJ.EQ.BOTTLE.AND.K.NE.0)PLACE(K)=-1
+      if (OBJ == BOTTLE .and. K /= 0) PLACE(K)=-1
       GOTO 2009
 
 !  DISCARD OBJECT.  "THROW" ALSO COMES HERE FOR MOST OBJECTS.  SPECIAL CASES FOR
 !  BIRD (MIGHT ATTACK SNAKE OR DRAGON) AND CAGE (MIGHT CONTAIN BIRD) AND VASE.
 !  DROP COINS AT VENDING MACHINE FOR EXTRA BATTERIES.
 
-9020  IF(TOTING(ROD2).AND.OBJ.EQ.ROD.AND..NOT.TOTING(ROD))OBJ=ROD2
-      IF(.NOT.TOTING(OBJ))GOTO 2011
-      IF(OBJ.NE.BIRD.OR..NOT.HERE(SNAKE))GOTO 9024
+9020  if (TOTING(ROD2) .and. OBJ == ROD .and. .not.TOTING(ROD)) OBJ=ROD2
+      if (.not.TOTING(OBJ)) GOTO 2011
+      if (OBJ /= BIRD .or. .not.HERE(SNAKE)) GOTO 9024
       CALL RSPEAK(30)
-      IF(CLOSED)GOTO 19000
+      if (CLOSED) GOTO 19000
       CALL DSTROY(SNAKE)
 !  SET PROP FOR USE BY TRAVEL OPTIONS
       PROP(SNAKE)=1
 9021  K=LIQ()
-      IF(K.EQ.OBJ)OBJ=BOTTLE
-      IF(OBJ.EQ.BOTTLE.AND.K.NE.0)PLACE(K)=0
-      IF(OBJ.EQ.CAGE.AND.PROP(BIRD).NE.0)CALL DROP(BIRD,LOC)
-      IF(OBJ.EQ.BIRD)PROP(BIRD)=0
+      if (K == OBJ) OBJ=BOTTLE
+      if (OBJ == BOTTLE .and. K /= 0) PLACE(K)=0
+      if (OBJ == CAGE .and. PROP(BIRD) /= 0) CALL DROP(BIRD,LOC)
+      if (OBJ == BIRD) PROP(BIRD)=0
       CALL DROP(OBJ,LOC)
       GOTO 2012
 
-9024  IF (OBJ.EQ.COINS.AND.HERE(VEND)) THEN
+9024  if (OBJ == COINS .and. HERE(VEND)) then
          CALL DSTROY(COINS)
          CALL DROP(BATTER,LOC)
          CALL PSPEAK(BATTER,0)
          GOTO 2012
-      ELSE IF (OBJ.EQ.BIRD.AND.AT(DRAGON).AND.PROP(DRAGON).EQ.0) THEN
+      else if (OBJ == BIRD .and. AT(DRAGON) .and. PROP(DRAGON) == 0) then
          CALL RSPEAK(154)
          CALL DSTROY(BIRD)
          PROP(BIRD)=0
-         IF(PLACE(SNAKE).EQ.PLAC(SNAKE))TALLY2=TALLY2+1
+         if (PLACE(SNAKE) == PLAC(SNAKE)) TALLY2=TALLY2+1
          GOTO 2012
-      ELSE IF (OBJ.EQ.BEAR.AND.AT(TROLL)) THEN
+      else if (OBJ == BEAR .and. AT(TROLL)) then
          CALL RSPEAK(163)
          CALL MOVE(TROLL,0)
          CALL MOVE(TROLL+100,0)
@@ -1518,126 +1518,126 @@ program advent
          CALL JUGGLE(CHASM)
          PROP(TROLL)=2
          GOTO 9021
-      ELSE IF (OBJ.EQ.VASE.AND.LOC.NE.PLAC(PILLOW)) THEN
+      else if (OBJ == VASE .and. LOC /= PLAC(PILLOW)) then
          PROP(VASE)=2
-         IF(AT(PILLOW))PROP(VASE)=0
+         if (AT(PILLOW)) PROP(VASE)=0
          CALL PSPEAK(VASE,PROP(VASE)+1)
-         IF(PROP(VASE).NE.0)FIXED(VASE)=-1
+         if (PROP(VASE) /= 0) FIXED(VASE)=-1
          GOTO 9021
-      ELSE
+      else
          CALL RSPEAK(54)
          GOTO 9021
-      END IF
+      end if
 
 !  SAY.  ECHO WD2 (OR WD1 IF NO WD2 (SAY WHAT?, ETC.).)  MAGIC WORDS OVERRIDE.
 
 9030  CALL A5TOA1(WD2,WD2X,IA5('".   '),CAT,K)
-      IF(WD2.EQ.0)CALL A5TOA1(WD1,WD1X,IA5('".   '),CAT,K)
-      IF(WD2.NE.0)WD1=WD2
+      if (WD2 == 0) CALL A5TOA1(WD1,WD1X,IA5('".   '),CAT,K)
+      if (WD2 /= 0) WD1=WD2
       I=VOCAB(WD1,-1)
-      IF(.NOT.(I.EQ.62.OR.I.EQ.65.OR.I.EQ.71.OR.I.EQ.2025)) THEN
+      if (.not.(I == 62 .or. I == 65 .or. I == 71 .or. I == 2025)) then
          PRINT 9032,(CAT(I),I=1,K)
 9032     FORMAT(/' OKAY, "',20A1)
          GOTO 2012
-      ELSE
+      else
          WD2=0
          OBJ=0
          GOTO 2630
-      END IF
+      end if
 
 !  LOCK, UNLOCK, NO OBJECT GIVEN.  ASSUME VARIOUS THINGS IF PRESENT.
 
 8040  SPK=28
-      IF(HERE(CLAM))OBJ=CLAM
-      IF(HERE(OYSTER))OBJ=OYSTER
-      IF(AT(DOOR))OBJ=DOOR
-      IF(AT(GRATE))OBJ=GRATE
-      IF(OBJ.NE.0.AND.HERE(CHAIN))GOTO 8000
-      IF(HERE(CHAIN))OBJ=CHAIN
-      IF(OBJ.EQ.0)GOTO 2011
+      if (HERE(CLAM)) OBJ=CLAM
+      if (HERE(OYSTER)) OBJ=OYSTER
+      if (AT(DOOR)) OBJ=DOOR
+      if (AT(GRATE)) OBJ=GRATE
+      if (OBJ /= 0 .and. HERE(CHAIN)) GOTO 8000
+      if (HERE(CHAIN)) OBJ=CHAIN
+      if (OBJ == 0) GOTO 2011
 
 !  LOCK, UNLOCK OBJECT.  SPECIAL STUFF FOR OPENING CLAM/OYSTER AND FOR CHAIN.
 
-9040  IF(OBJ.EQ.CLAM.OR.OBJ.EQ.OYSTER)GOTO 9046
-      IF(OBJ.EQ.DOOR)SPK=111
-      IF(OBJ.EQ.DOOR.AND.PROP(DOOR).EQ.1)SPK=54
-      IF(OBJ.EQ.CAGE)SPK=32
-      IF(OBJ.EQ.KEYS)SPK=55
-      IF(OBJ.EQ.GRATE.OR.OBJ.EQ.CHAIN)SPK=31
-      IF(SPK.NE.31.OR..NOT.HERE(KEYS))GOTO 2011
-      IF(OBJ.EQ.CHAIN)GOTO 9048
-      IF (CLOSNG) THEN
+9040  if (OBJ == CLAM .or. OBJ == OYSTER) GOTO 9046
+      if (OBJ == DOOR) SPK=111
+      if (OBJ == DOOR .and. PROP(DOOR) == 1) SPK=54
+      if (OBJ == CAGE) SPK=32
+      if (OBJ == KEYS) SPK=55
+      if (OBJ == GRATE .or. OBJ == CHAIN) SPK=31
+      if (SPK /= 31 .or. .not.HERE(KEYS)) GOTO 2011
+      if (OBJ == CHAIN) GOTO 9048
+      if (CLOSNG) then
          K=130
-         IF(.NOT.PANIC)CLOCK2=15
-         PANIC=.TRUE.
+         if (.not.PANIC) CLOCK2=15
+         PANIC=.true.
          GOTO 2010
-      END IF
+      end if
 
 9043  K=34+PROP(GRATE)
       PROP(GRATE)=1
-      IF(VERB.EQ.LOCK)PROP(GRATE)=0
+      if (VERB == LOCK) PROP(GRATE)=0
       K=K+2*PROP(GRATE)
       GOTO 2010
 
 !  CLAM/OYSTER.
 9046  K=0
-      IF(OBJ.EQ.OYSTER)K=1
+      if (OBJ == OYSTER) K=1
       SPK=124+K
-      IF(TOTING(OBJ))SPK=120+K
-      IF(.NOT.TOTING(TRIDNT))SPK=122+K
-      IF(VERB.EQ.LOCK)SPK=61
-      IF(SPK.NE.124)GOTO 2011
+      if (TOTING(OBJ)) SPK=120+K
+      if (.not.TOTING(TRIDNT)) SPK=122+K
+      if (VERB == LOCK) SPK=61
+      if (SPK /= 124) GOTO 2011
       CALL DSTROY(CLAM)
       CALL DROP(OYSTER,LOC)
       CALL DROP(PEARL,105)
       GOTO 2011
 
 !  CHAIN.
-9048  IF (VERB.NE.LOCK) THEN
+9048  if (VERB /= LOCK) then
          SPK=171
-         IF(PROP(BEAR).EQ.0)SPK=41
-         IF(PROP(CHAIN).EQ.0)SPK=37
-         IF(SPK.NE.171)GOTO 2011
+         if (PROP(BEAR) == 0) SPK=41
+         if (PROP(CHAIN) == 0) SPK=37
+         if (SPK /= 171) GOTO 2011
          PROP(CHAIN)=0
          FIXED(CHAIN)=0
-         IF(PROP(BEAR).NE.3)PROP(BEAR)=2
+         if (PROP(BEAR) /= 3) PROP(BEAR)=2
          FIXED(BEAR)=2-PROP(BEAR)
          GOTO 2011
-      ELSE
+      else
          SPK=172
-         IF(PROP(CHAIN).NE.0)SPK=34
-         IF(LOC.NE.PLAC(CHAIN))SPK=173
-         IF(SPK.NE.172)GOTO 2011
+         if (PROP(CHAIN) /= 0) SPK=34
+         if (LOC /= PLAC(CHAIN)) SPK=173
+         if (SPK /= 172) GOTO 2011
          PROP(CHAIN)=2
-         IF(TOTING(CHAIN))CALL DROP(CHAIN,LOC)
+         if (TOTING(CHAIN)) CALL DROP(CHAIN,LOC)
          FIXED(CHAIN)=-1
          GOTO 2011
-      END IF
+      end if
 
 !  LIGHT LAMP
 
-9070  IF(.NOT.HERE(LAMP))GOTO 2011
+9070  if (.not.HERE(LAMP)) GOTO 2011
       SPK=184
-      IF(LIMIT.LT.0)GOTO 2011
+      if (LIMIT < 0) GOTO 2011
       PROP(LAMP)=1
       CALL RSPEAK(39)
-      IF(WZDARK)GOTO 2000
+      if (WZDARK) GOTO 2000
       GOTO 2012
 
 !  LAMP OFF
 
-9080  IF(.NOT.HERE(LAMP))GOTO 2011
+9080  if (.not.HERE(LAMP)) GOTO 2011
       PROP(LAMP)=0
       CALL RSPEAK(40)
-      IF (DARK()) CALL RSPEAK(16)
+      if (DARK()) CALL RSPEAK(16)
       GOTO 2012
 
 !  WAVE.  NO EFFECT UNLESS WAVING ROD AT FISSURE.
 
-9090  IF((.NOT.TOTING(OBJ)).AND.(OBJ.NE.ROD.OR..NOT.TOTING(ROD2)))  &
-              SPK=29
-      IF(OBJ.NE.ROD.OR..NOT.AT(FISSUR).OR..NOT.TOTING(OBJ)  &
-              .OR.CLOSNG)GOTO 2011
+9090  if ((.not.TOTING(OBJ)) .and. (OBJ /= ROD .or. .not.TOTING(ROD2)))  &
+            SPK=29
+      if (OBJ /= ROD .or. .not.AT(FISSUR) .or. .not.TOTING(OBJ)  &
+            .or. CLOSNG) GOTO 2011
       PROP(FISSUR)=1-PROP(FISSUR)
       CALL PSPEAK(FISSUR,2-PROP(FISSUR))
       GOTO 2012
@@ -1646,42 +1646,42 @@ program advent
 !  OBJECTS FALL INTO TWO CATEGORIES: ENEMIES (SNAKE, DWARF, ETC.)  AND OTHERS
 !  (BIRD, CLAM).  AMBIGUOUS IF TWO ENEMIES, OR IF NO ENEMIES BUT TWO OTHERS.
 
-9120  DO I=1,5
-         IF(DLOC(I).EQ.LOC.AND.DFLAG.GE.2)GOTO 9122
-      END DO
+9120  do I=1,5
+         if (DLOC(I) == LOC .and. DFLAG >= 2) GOTO 9122
+      end do
       I=0
-9122  IF (OBJ.EQ.0) THEN
-         IF(I.NE.0)OBJ=DWARF
-         IF(HERE(SNAKE))OBJ=OBJ*100+SNAKE
-         IF(AT(DRAGON).AND.PROP(DRAGON).EQ.0)OBJ=OBJ*100+DRAGON
-         IF(AT(TROLL))OBJ=OBJ*100+TROLL
-         IF(HERE(BEAR).AND.PROP(BEAR).EQ.0)OBJ=OBJ*100+BEAR
-         IF(OBJ.GT.100)GOTO 8000
-      END IF
-      IF (OBJ.EQ.0) THEN
+9122  if (OBJ == 0) then
+         if (I /= 0) OBJ=DWARF
+         if (HERE(SNAKE)) OBJ=OBJ*100+SNAKE
+         if (AT(DRAGON) .and. PROP(DRAGON) == 0) OBJ=OBJ*100+DRAGON
+         if (AT(TROLL)) OBJ=OBJ*100+TROLL
+         if (HERE(BEAR) .and. PROP(BEAR) == 0) OBJ=OBJ*100+BEAR
+         if (OBJ > 100) GOTO 8000
+      end if
+      if (OBJ == 0) then
 !  CAN'T ATTACK BIRD BY THROWING AXE.
-         IF(HERE(BIRD).AND.VERB.NE.THROW)OBJ=BIRD
+         if (HERE(BIRD) .and. VERB /= THROW) OBJ=BIRD
 !  CLAM AND OYSTER BOTH TREATED AS CLAM FOR INTRANSITIVE CASE; NO HARM DONE.
-         IF(HERE(CLAM).OR.HERE(OYSTER))OBJ=100*OBJ+CLAM
-         IF(OBJ.GT.100)GOTO 8000
-      END IF
-      IF (OBJ.EQ.BIRD) THEN
+         if (HERE(CLAM) .or. HERE(OYSTER)) OBJ=100*OBJ+CLAM
+         if (OBJ > 100) GOTO 8000
+      end if
+      if (OBJ == BIRD) then
          SPK=137
-         IF(CLOSED)GOTO 2011
+         if (CLOSED) GOTO 2011
          CALL DSTROY(BIRD)
          PROP(BIRD)=0
-         IF(PLACE(SNAKE).EQ.PLAC(SNAKE))TALLY2=TALLY2+1
+         if (PLACE(SNAKE) == PLAC(SNAKE)) TALLY2=TALLY2+1
          SPK=45
-      END IF
-      IF(OBJ.EQ.0)SPK=44
-      IF(OBJ.EQ.CLAM.OR.OBJ.EQ.OYSTER)SPK=150
-      IF(OBJ.EQ.SNAKE)SPK=46
-      IF(OBJ.EQ.DWARF)SPK=49
-      IF(OBJ.EQ.DWARF.AND.CLOSED)GOTO 19000
-      IF(OBJ.EQ.DRAGON)SPK=167
-      IF(OBJ.EQ.TROLL)SPK=157
-      IF(OBJ.EQ.BEAR)SPK=165+(PROP(BEAR)+1)/2
-      IF(OBJ.NE.DRAGON.OR.PROP(DRAGON).NE.0)GOTO 2011
+      end if
+      if (OBJ == 0) SPK=44
+      if (OBJ == CLAM .or. OBJ == OYSTER) SPK=150
+      if (OBJ == SNAKE) SPK=46
+      if (OBJ == DWARF) SPK=49
+      if (OBJ == DWARF .and. CLOSED) GOTO 19000
+      if (OBJ == DRAGON) SPK=167
+      if (OBJ == TROLL) SPK=157
+      if (OBJ == BEAR) SPK=165+(PROP(BEAR)+1)/2
+      if (OBJ /= DRAGON .or. PROP(DRAGON) /= 0) GOTO 2011
 !  FUN STUFF FOR DRAGON.  IF HE INSISTS ON ATTACKING IT, WIN!  SET PROP TO DEAD,
 !  MOVE DRAGON TO CENTRAL LOC (STILL FIXED), MOVE RUG THERE (NOT FIXED), AND
 !  MOVE HIM THERE, TOO.  THEN DO A NULL MOTION TO GET NEW DESCRIPTION.
@@ -1689,7 +1689,7 @@ program advent
       VERB=0
       OBJ=0
       CALL GETIN(WD1,WD1X,WD2,WD2X)
-      IF(WD1.NE.IA5('Y    ').AND.WD1.NE.IA5('YES  '))GOTO 2608
+      if (WD1 /= IA5('Y    ') .and. WD1 /= IA5('YES  ')) GOTO 2608
       CALL PSPEAK(DRAGON,1)
       PROP(DRAGON)=2
       PROP(RUG)=0
@@ -1698,10 +1698,10 @@ program advent
       CALL MOVE(RUG+100,0)
       CALL MOVE(DRAGON,K)
       CALL MOVE(RUG,K)
-      DO OBJ=1,100
-         IF(PLACE(OBJ).EQ.PLAC(DRAGON).OR.PLACE(OBJ).EQ.FIXD(DRAGON))  &
+      do OBJ=1,100
+         if (PLACE(OBJ) == PLAC(DRAGON) .or. PLACE(OBJ) == FIXD(DRAGON))  &
                CALL MOVE(OBJ,K)
-      END DO
+      end do
       LOC=K
       K=NOOP
       GOTO 8
@@ -1709,53 +1709,53 @@ program advent
 !  POUR.  IF NO OBJECT, OR OBJECT IS BOTTLE, ASSUME CONTENTS OF BOTTLE.
 !  SPECIAL TESTS FOR POURING WATER OR OIL ON PLANT OR RUSTY DOOR.
 
-9130  IF(OBJ.EQ.BOTTLE.OR.OBJ.EQ.0)OBJ=LIQ()
-      IF(OBJ.EQ.0)GOTO 8000
-      IF(.NOT.TOTING(OBJ))GOTO 2011
+9130  if (OBJ == BOTTLE .or. OBJ == 0) OBJ=LIQ()
+      if (OBJ == 0) GOTO 8000
+      if (.not.TOTING(OBJ)) GOTO 2011
       SPK=78
-      IF(OBJ.NE.OIL.AND.OBJ.NE.WATER)GOTO 2011
+      if (OBJ /= OIL .and. OBJ /= WATER) GOTO 2011
       PROP(BOTTLE)=1
       PLACE(OBJ)=0
       SPK=77
 
-      IF (AT(PLANT)) THEN
+      if (AT(PLANT)) then
          SPK=112
-         IF(OBJ.NE.WATER)GOTO 2011
+         if (OBJ /= WATER) GOTO 2011
          CALL PSPEAK(PLANT,PROP(PLANT)+1)
          PROP(PLANT)=MOD(PROP(PLANT)+2,6)
          PROP(PLANT2)=PROP(PLANT)/2
          K=NOOP
          GOTO 8
-      ELSE IF (AT(DOOR)) THEN
+      else if (AT(DOOR)) then
          PROP(DOOR)=0
-         IF(OBJ.EQ.OIL)PROP(DOOR)=1
+         if (OBJ == OIL) PROP(DOOR)=1
          SPK=113+PROP(DOOR)
          GOTO 2011
-      ELSE
+      else
          GOTO 2011
-      END IF
+      end if
 
 !  EAT.  INTRANSITIVE: ASSUME FOOD IF PRESENT, ELSE ASK WHAT.  TRANSITIVE: FOOD
 !  OK, SOME THINGS LOSE APPETITE, REST ARE RIDICULOUS.
 
-8140  IF(.NOT.HERE(FOOD))GOTO 8000
+8140  if (.not.HERE(FOOD)) GOTO 8000
 8142  CALL DSTROY(FOOD)
       SPK=72
       GOTO 2011
 
-9140  IF(OBJ.EQ.FOOD)GOTO 8142
-      IF(OBJ.EQ.BIRD.OR.OBJ.EQ.SNAKE.OR.OBJ.EQ.CLAM.OR.OBJ.EQ.OYSTER  &
-              .OR.OBJ.EQ.DWARF.OR.OBJ.EQ.DRAGON.OR.OBJ.EQ.TROLL  &
-              .OR.OBJ.EQ.BEAR)SPK=71
+9140  if (OBJ == FOOD) GOTO 8142
+      if (OBJ == BIRD .or. OBJ == SNAKE .or. OBJ == CLAM .or. OBJ == OYSTER  &
+            .or. OBJ == DWARF .or. OBJ == DRAGON .or. OBJ == TROLL  &
+            .or. OBJ == BEAR) SPK=71
       GOTO 2011
 
 !  DRINK.  IF NO OBJECT, ASSUME WATER AND LOOK FOR IT HERE.  IF WATER IS IN
 !  THE BOTTLE, DRINK THAT, ELSE MUST BE AT A WATER LOC, SO DRINK STREAM.
 
-9150  IF(OBJ.EQ.0.AND.LIQLOC(LOC).NE.WATER.AND.(LIQ().NE.WATER  &
-              .OR..NOT.HERE(BOTTLE)))GOTO 8000
-      IF(OBJ.NE.0.AND.OBJ.NE.WATER)SPK=110
-      IF(SPK.EQ.110.OR.LIQ().NE.WATER.OR..NOT.HERE(BOTTLE))GOTO 2011
+9150  if (OBJ == 0 .and. LIQLOC(LOC) /= WATER .and. (LIQ() /= WATER  &
+            .or. .not.HERE(BOTTLE))) GOTO 8000
+      if (OBJ /= 0 .and. OBJ /= WATER) SPK=110
+      if (SPK == 110 .or. LIQ() /= WATER .or. .not.HERE(BOTTLE)) GOTO 2011
       PROP(BOTTLE)=1
       PLACE(WATER)=0
       SPK=74
@@ -1763,38 +1763,38 @@ program advent
 
 !  RUB.  YIELDS VARIOUS SNIDE REMARKS.
 
-9160  IF(OBJ.NE.LAMP)SPK=76
+9160  if (OBJ /= LAMP) SPK=76
       GOTO 2011
 
 !  THROW.  SAME AS DISCARD UNLESS AXE.  THEN SAME AS ATTACK EXCEPT IGNORE BIRD,
 !  AND IF DWARF IS PRESENT THEN ONE MIGHT BE KILLED.  (ONLY WAY TO DO SO!)
 !  AXE ALSO SPECIAL FOR DRAGON, BEAR, AND TROLL.  TREASURES SPECIAL FOR TROLL.
 
-9170  IF(TOTING(ROD2).AND.OBJ.EQ.ROD.AND..NOT.TOTING(ROD))OBJ=ROD2
-      IF(.NOT.TOTING(OBJ))GOTO 2011
-      IF(OBJ.GE.50.AND.OBJ.LE.MAXTRS.AND.AT(TROLL))GOTO 9178
-      IF(OBJ.EQ.FOOD.AND.HERE(BEAR))GOTO 9177
-      IF(OBJ.NE.AXE)GOTO 9020
-      DO I=1,5
+9170  if (TOTING(ROD2) .and. OBJ == ROD .and. .not.TOTING(ROD)) OBJ=ROD2
+      if (.not.TOTING(OBJ)) GOTO 2011
+      if (OBJ >= 50 .and. OBJ <= MAXTRS .and. AT(TROLL)) GOTO 9178
+      if (OBJ == FOOD .and. HERE(BEAR)) GOTO 9177
+      if (OBJ /= AXE) GOTO 9020
+      do I=1,5
 !  NEEDN'T CHECK DFLAG IF AXE IS HERE.
-         IF(DLOC(I).EQ.LOC)GOTO 9172
-      END DO
+         if (DLOC(I) == LOC) GOTO 9172
+      end do
       SPK=152
-      IF(AT(DRAGON).AND.PROP(DRAGON).EQ.0)GOTO 9175
+      if (AT(DRAGON) .and. PROP(DRAGON) == 0) GOTO 9175
       SPK=158
-      IF(AT(TROLL))GOTO 9175
-      IF(HERE(BEAR).AND.PROP(BEAR).EQ.0)GOTO 9176
+      if (AT(TROLL)) GOTO 9175
+      if (HERE(BEAR) .and. PROP(BEAR) == 0) GOTO 9176
       OBJ=0
       GOTO 9120
 
 9172  SPK=48
 !  IF SAVED NOT = -1, HE BYPASSED THE "START" CALL.
-      IF(RANI(3).EQ.0.OR.SAVED.NE.-1)GOTO 9175
-      DSEEN(I)=.FALSE.
+      if (RANI(3) == 0 .or. SAVED /= -1) GOTO 9175
+      DSEEN(I)=.false.
       DLOC(I)=0
       SPK=47
       DKILL=DKILL+1
-      IF(DKILL.EQ.1)SPK=149
+      if (DKILL == 1) SPK=149
 9175  CALL RSPEAK(SPK)
       CALL DROP(AXE,LOC)
       K=NOOP
@@ -1825,105 +1825,105 @@ program advent
 !  QUIT.  INTRANSITIVE ONLY.  VERIFY INTENT AND EXIT IF THAT'S WHAT HE WANTS.
 
 8180  GAVEUP=YES(22,54,54)
-8185  IF(GAVEUP)GOTO 20000
+8185  if (GAVEUP) GOTO 20000
       GOTO 2012
 
 !  FIND.  MIGHT BE CARRYING IT, OR IT MIGHT BE HERE.  ELSE GIVE CAVEAT.
 
-9190  IF(AT(OBJ).OR.(LIQ().EQ.OBJ.AND.AT(BOTTLE))  &
-              .OR.K.EQ.LIQLOC(LOC))SPK=94
-      DO I=1,5
-         IF(DLOC(I).EQ.LOC.AND.DFLAG.GE.2.AND.OBJ.EQ.DWARF)SPK=94
-      END DO
-      IF(CLOSED)SPK=138
-      IF(TOTING(OBJ))SPK=24
+9190  if (AT(OBJ) .or. (LIQ() == OBJ .and. AT(BOTTLE))  &
+            .or. K == LIQLOC(LOC)) SPK=94
+      do I=1,5
+         if (DLOC(I) == LOC .and. DFLAG >= 2 .and. OBJ == DWARF) SPK=94
+      end do
+      if (CLOSED) SPK=138
+      if (TOTING(OBJ)) SPK=24
       GOTO 2011
 
 !  INVENTORY.  IF OBJECT, TREAT SAME AS FIND.  ELSE REPORT ON CURRENT BURDEN.
 
 8200  SPK=98
-      DO I=1,100
-         IF (I.EQ.BEAR.OR..NOT.TOTING(I)) CYCLE
-         IF(SPK.EQ.98)CALL RSPEAK(99)
-         BLKLIN=.FALSE.
+      do I=1,100
+         if (I == BEAR .or. .not.TOTING(I)) cycle
+         if (SPK == 98) CALL RSPEAK(99)
+         BLKLIN=.false.
          CALL PSPEAK(I,-1)
-         BLKLIN=.TRUE.
+         BLKLIN=.true.
          SPK=0
-      END DO
-      IF(TOTING(BEAR))SPK=141
+      end do
+      if (TOTING(BEAR)) SPK=141
       GOTO 2011
 
 !  FEED.  IF BIRD, NO SEED.  SNAKE, DRAGON, TROLL: QUIP.  IF DWARF, MAKE HIM
 !  MAD.  BEAR, SPECIAL.
 
-9210  IF (OBJ.EQ.BIRD) THEN
+9210  if (OBJ == BIRD) then
          SPK=100
-      ELSE IF (OBJ.EQ.SNAKE.OR.OBJ.EQ.DRAGON.OR.OBJ.EQ.TROLL) THEN
+      else if (OBJ == SNAKE .or. OBJ == DRAGON .or. OBJ == TROLL) then
          SPK=102
-         IF(OBJ.EQ.DRAGON.AND.PROP(DRAGON).NE.0)SPK=110
-         IF(OBJ.EQ.TROLL)SPK=182
-         IF(OBJ.NE.SNAKE.OR.CLOSED.OR..NOT.HERE(BIRD))GOTO 2011
+         if (OBJ == DRAGON .and. PROP(DRAGON) /= 0) SPK=110
+         if (OBJ == TROLL) SPK=182
+         if (OBJ /= SNAKE .or. CLOSED .or. .not.HERE(BIRD)) GOTO 2011
          SPK=101
          CALL DSTROY(BIRD)
          PROP(BIRD)=0
          TALLY2=TALLY2+1
-      ELSE IF (OBJ.EQ.DWARF) THEN
-         IF(.NOT.HERE(FOOD))GOTO 2011
+      else if (OBJ == DWARF) then
+         if (.not.HERE(FOOD)) GOTO 2011
          SPK=103
          DFLAG=DFLAG+1
-      ELSE IF (OBJ.EQ.BEAR) THEN
-         IF(PROP(BEAR).EQ.0)SPK=102
-         IF(PROP(BEAR).EQ.3)SPK=110
-         IF(.NOT.HERE(FOOD))GOTO 2011
+      else if (OBJ == BEAR) then
+         if (PROP(BEAR) == 0) SPK=102
+         if (PROP(BEAR) == 3) SPK=110
+         if (.not.HERE(FOOD)) GOTO 2011
          CALL DSTROY(FOOD)
          PROP(BEAR)=1
          FIXED(AXE)=0
          PROP(AXE)=0
          SPK=168
-      ELSE
+      else
          SPK=14
-      END IF
+      end if
       GOTO 2011
 
 !  FILL.  BOTTLE MUST BE EMPTY, AND SOME LIQUID AVAILABLE.  (VASE IS NASTY.)
 
-9220  IF (OBJ.NE.VASE) THEN
-         IF(OBJ.NE.0.AND.OBJ.NE.BOTTLE)GOTO 2011
-         IF(OBJ.EQ.0.AND..NOT.HERE(BOTTLE))GOTO 8000
+9220  if (OBJ /= VASE) then
+         if (OBJ /= 0 .and. OBJ /= BOTTLE) GOTO 2011
+         if (OBJ == 0 .and. .not.HERE(BOTTLE)) GOTO 8000
          SPK=107
-         IF(LIQLOC(LOC).EQ.0)SPK=106
-         IF(LIQ().NE.0)SPK=105
-         IF(SPK.NE.107)GOTO 2011
+         if (LIQLOC(LOC) == 0) SPK=106
+         if (LIQ() /= 0) SPK=105
+         if (SPK /= 107) GOTO 2011
          PROP(BOTTLE)=MOD(COND(LOC),4)/2*2
          K=LIQ()
-         IF(TOTING(BOTTLE))PLACE(K)=-1
-         IF(K.EQ.OIL)SPK=108
+         if (TOTING(BOTTLE)) PLACE(K)=-1
+         if (K == OIL) SPK=108
          GOTO 2011
-      ELSE
+      else
          SPK=29
-         IF(LIQLOC(LOC).EQ.0)SPK=144
-         IF(LIQLOC(LOC).EQ.0.OR..NOT.TOTING(VASE))GOTO 2011
+         if (LIQLOC(LOC) == 0) SPK=144
+         if (LIQLOC(LOC) == 0 .or. .not.TOTING(VASE)) GOTO 2011
          CALL RSPEAK(145)
          PROP(VASE)=2
          FIXED(VASE)=-1
          GOTO 9021
-      END IF
+      end if
 
 !  BLAST.  NO EFFECT UNLESS YOU'VE GOT DYNAMITE, WHICH IS A NEAT TRICK!
 
-9230  IF(PROP(ROD2).LT.0.OR..NOT.CLOSED)GOTO 2011
+9230  if (PROP(ROD2) < 0 .or. .not.CLOSED) GOTO 2011
       BONUS=133
-      IF(LOC.EQ.115)BONUS=134
-      IF(HERE(ROD2))BONUS=135
+      if (LOC == 115) BONUS=134
+      if (HERE(ROD2)) BONUS=135
       CALL RSPEAK(BONUS)
       GOTO 20000
 
 !  SCORE.  GO TO SCORING SECTION, WHICH WILL RETURN TO 8241 IF SCORNG IS TRUE.
 
-8240  SCORNG=.TRUE.
+8240  SCORNG=.true.
       GOTO 20000
 
-8241  SCORNG=.FALSE.
+8241  SCORNG=.false.
       PRINT 8243,SCORE,MXSCOR
 8243  FORMAT(/' IF YOU WERE TO QUIT NOW, YOU WOULD SCORE',I4  &
               ,' OUT OF A POSSIBLE',I4,'.')
@@ -1936,22 +1936,22 @@ program advent
 
 8250  K=VOCAB(WD1,3)
       SPK=42
-      IF (FOOBAR.NE.1-K) THEN
-         IF(FOOBAR.NE.0)SPK=151
+      if (FOOBAR /= 1-K) then
+         if (FOOBAR /= 0) SPK=151
          GOTO 2011
-      END IF
+      end if
 
       FOOBAR=K
-      IF(K.NE.4)GOTO 2009
+      if (K /= 4) GOTO 2009
       FOOBAR=0
-      IF(PLACE(EGGS).EQ.PLAC(EGGS)  &
-              .OR.(TOTING(EGGS).AND.LOC.EQ.PLAC(EGGS)))GOTO 2011
+      if (PLACE(EGGS) == PLAC(EGGS)  &
+            .or. (TOTING(EGGS) .and. LOC == PLAC(EGGS))) GOTO 2011
 !  BRING BACK TROLL IF WE STEAL THE EGGS BACK FROM HIM BEFORE CROSSING.
-      IF(PLACE(EGGS).EQ.0.AND.PLACE(TROLL).EQ.0.AND.PROP(TROLL).EQ.0)  &
-              PROP(TROLL)=1
+      if (PLACE(EGGS) == 0 .and. PLACE(TROLL) == 0 .and. PROP(TROLL) == 0)  &
+            PROP(TROLL)=1
       K=2
-      IF(HERE(EGGS))K=1
-      IF(LOC.EQ.PLAC(EGGS))K=0
+      if (HERE(EGGS)) K=1
+      if (LOC == PLAC(EGGS)) K=0
       CALL MOVE(EGGS,PLAC(EGGS))
       CALL PSPEAK(EGGS,K)
       GOTO 2012
@@ -1965,40 +1965,40 @@ program advent
 
 !  READ.  MAGAZINES IN DWARVISH, MESSAGE WE'VE SEEN, AND . . . OYSTER?
 
-8270  IF(HERE(MAGZIN))OBJ=MAGZIN
-      IF(HERE(TABLET))OBJ=OBJ*100+TABLET
-      IF(HERE(MESSAG))OBJ=OBJ*100+MESSAG
-      IF(CLOSED.AND.TOTING(OYSTER))OBJ=OYSTER
-      IF(OBJ.GT.100.OR.OBJ.EQ.0.OR.DARK())GOTO 8000
+8270  if (HERE(MAGZIN)) OBJ=MAGZIN
+      if (HERE(TABLET)) OBJ=OBJ*100+TABLET
+      if (HERE(MESSAG)) OBJ=OBJ*100+MESSAG
+      if (CLOSED .and. TOTING(OYSTER)) OBJ=OYSTER
+      if (OBJ > 100 .or. OBJ == 0 .or. DARK()) GOTO 8000
 
-9270  IF(DARK())GOTO 5190
-      IF(OBJ.EQ.MAGZIN)SPK=190
-      IF(OBJ.EQ.TABLET)SPK=196
-      IF(OBJ.EQ.MESSAG)SPK=191
-      IF(OBJ.EQ.OYSTER.AND.HINTED(2).AND.TOTING(OYSTER))SPK=194
-      IF(OBJ.NE.OYSTER.OR.HINTED(2).OR..NOT.TOTING(OYSTER)  &
-              .OR..NOT.CLOSED)GOTO 2011
+9270  if (DARK()) GOTO 5190
+      if (OBJ == MAGZIN) SPK=190
+      if (OBJ == TABLET) SPK=196
+      if (OBJ == MESSAG) SPK=191
+      if (OBJ == OYSTER .and. HINTED(2) .and. TOTING(OYSTER)) SPK=194
+      if (OBJ /= OYSTER .or. HINTED(2) .or. .not.TOTING(OYSTER)  &
+            .or. .not.CLOSED) GOTO 2011
       HINTED(2)=YES(192,193,54)
       GOTO 2012
 
 !  BREAK.  ONLY WORKS FOR MIRROR IN REPOSITORY AND, OF COURSE, THE VASE.
 
-9280  IF(OBJ.EQ.MIRROR)SPK=148
-      IF (OBJ.NE.VASE.OR.PROP(VASE).NE.0) THEN
-         IF(OBJ.NE.MIRROR.OR..NOT.CLOSED)GOTO 2011
+9280  if (OBJ == MIRROR) SPK=148
+      if (OBJ /= VASE .or. PROP(VASE) /= 0) then
+         if (OBJ /= MIRROR .or. .not.CLOSED) GOTO 2011
          CALL RSPEAK(197)
          GOTO 19000
-      ELSE
+      else
          SPK=198
-         IF(TOTING(VASE))CALL DROP(VASE,LOC)
+         if (TOTING(VASE)) CALL DROP(VASE,LOC)
          PROP(VASE)=2
          FIXED(VASE)=-1
          GOTO 2011
-      END IF
+      end if
 
 !  WAKE.  ONLY USE IS TO DISTURB THE DWARVES.
 
-9290  IF(OBJ.NE.DWARF.OR..NOT.CLOSED)GOTO 2011
+9290  if (OBJ /= DWARF .or. .not.CLOSED) GOTO 2011
       CALL RSPEAK(199)
       GOTO 19000
 
@@ -2007,12 +2007,12 @@ program advent
 !  UPON RESTARTING, SETUP=-1 CAUSES RETURN TO 8305 TO PICK UP AGAIN.
 
 8300  SPK=201
-      IF(DEMO)GOTO 2011
+      if (DEMO) GOTO 2011
       PRINT 8302,LATNCY
 8302  FORMAT(/' I CAN SUSPEND YOUR ADVENTURE FOR YOU SO THAT YOU CAN',  &
               ' RESUME LATER, BUT'/' YOU WILL HAVE TO WAIT AT LEAST',  &
               I3,' MINUTES BEFORE CONTINUING.')
-      IF(.NOT.YES(200,54,54))GOTO 2012
+      if (.not.YES(200,54,54)) GOTO 2012
       CALL DATIME(SAVED,SAVET)
       SETUP=-1
       CALL CIAO
@@ -2039,34 +2039,34 @@ program advent
 40000 select case (HINT)
 !  NOW FOR THE QUICK TESTS.  SEE DATABASE DESCRIPTION FOR ONE-LINE NOTES.
          case (4)  ! CAVE
-            QHINT = PROP(GRATE).EQ.0.AND..NOT.HERE(KEYS)
+            QHINT = PROP(GRATE) == 0 .and. .not.HERE(KEYS)
          case (5)  ! BIRD
-            QHINT = HERE(BIRD).AND.TOTING(ROD).AND.OLDOBJ.EQ.BIRD
+            QHINT = HERE(BIRD) .and. TOTING(ROD) .and. OLDOBJ == BIRD
          case (6)  ! SNAKE
-            QHINT = HERE(SNAKE).AND..NOT.HERE(BIRD)
+            QHINT = HERE(SNAKE) .and. .not.HERE(BIRD)
          case (7)  ! MAZE
-            QHINT = ATLOC(LOC).EQ.0.AND.ATLOC(OLDLOC).EQ.0  &
-                  .AND.ATLOC(OLDLC2).EQ.0.AND.HOLDNG.GT.1
+            QHINT = ATLOC(LOC) == 0 .and. ATLOC(OLDLOC) == 0  &
+                   .and. ATLOC(OLDLC2) == 0 .and. HOLDNG > 1
          case (8)  ! DARK
-            QHINT = PROP(EMRALD).NE.-1.AND.PROP(PYRAM).EQ.-1
+            QHINT = PROP(EMRALD) /= -1 .and. PROP(PYRAM) == -1
          case (9)  ! WITT
-            QHINT = .TRUE.
+            QHINT = .true.
          case default
             CALL BUG(27)
       end select
 
-      IF (QHINT) THEN
+      if (QHINT) then
          HINTLC(HINT)=0
-         IF (YES(HINTS(HINT,3),0,54)) THEN
+         if (YES(HINTS(HINT,3),0,54)) then
             PRINT 40012,HINTS(HINT,2)
 40012       FORMAT(/' I AM PREPARED TO GIVE YOU A HINT, BUT IT WILL COST YOU',  &
                   I2,' POINTS.')
             HINTED(HINT)=YES(175,HINTS(HINT,4),54)
-            IF(HINTED(HINT).AND.LIMIT.GT.30)LIMIT=LIMIT+30*HINTS(HINT,2)
-         END IF
-      ELSE
-         IF (HINT.NE.5) HINTLC(HINT)=0
-      END IF
+            if (HINTED(HINT) .and. LIMIT > 30) LIMIT=LIMIT+30*HINTS(HINT,2)
+         end if
+      else
+         if (HINT /= 5) HINTLC(HINT)=0
+      end if
       GOTO 2602
 
 
@@ -2104,23 +2104,23 @@ program advent
 
 10000 PROP(GRATE)=0
       PROP(FISSUR)=0
-      DO I=1,6
-         DSEEN(I)=.FALSE.
+      do I=1,6
+         DSEEN(I)=.false.
          DLOC(I)=0
-      END DO
+      end do
       CALL MOVE(TROLL,0)
       CALL MOVE(TROLL+100,0)
       CALL MOVE(TROLL2,PLAC(TROLL))
       CALL MOVE(TROLL2+100,FIXD(TROLL))
       CALL JUGGLE(CHASM)
-      IF(PROP(BEAR).NE.3)CALL DSTROY(BEAR)
+      if (PROP(BEAR) /= 3) CALL DSTROY(BEAR)
       PROP(CHAIN)=0
       FIXED(CHAIN)=0
       PROP(AXE)=0
       FIXED(AXE)=0
       CALL RSPEAK(129)
       CLOCK1=-1
-      CLOSNG=.TRUE.
+      CLOSNG=.true.
       GOTO 19999
 
 !  ONCE HE'S PANICKED, AND CLOCK2 HAS RUN OUT, WE COME HERE TO SET UP THE
@@ -2157,12 +2157,12 @@ program advent
       PROP(MIRROR)=PUT(MIRROR,115,0)
       FIXED(MIRROR)=116
 
-      DO I=1,100
-         IF(TOTING(I))CALL DSTROY(I)
-      END DO
+      do I=1,100
+         if (TOTING(I)) CALL DSTROY(I)
+      end do
 
       CALL RSPEAK(132)
-      CLOSED=.TRUE.
+      CLOSED=.true.
       GOTO 2
 
 !  ANOTHER WAY WE CAN FORCE AN END TO THINGS IS BY HAVING THE LAMP GIVE OUT.
@@ -2174,32 +2174,32 @@ program advent
 
 12000 CALL RSPEAK(188)
       PROP(BATTER)=1
-      IF(TOTING(BATTER))CALL DROP(BATTER,LOC)
+      if (TOTING(BATTER)) CALL DROP(BATTER,LOC)
       LIMIT=LIMIT+2500
-      LMWARN=.FALSE.
+      LMWARN=.false.
       GOTO 19999
 
-12200 IF(LMWARN.OR..NOT.HERE(LAMP))GOTO 19999
-      LMWARN=.TRUE.
+12200 if (LMWARN .or. .not.HERE(LAMP)) GOTO 19999
+      LMWARN=.true.
       SPK=187
-      IF(PLACE(BATTER).EQ.0)SPK=183
-      IF(PROP(BATTER).EQ.1)SPK=189
+      if (PLACE(BATTER) == 0) SPK=183
+      if (PROP(BATTER) == 1) SPK=189
       CALL RSPEAK(SPK)
       GOTO 19999
 
 12400 LIMIT=-1
       PROP(LAMP)=0
-      IF(HERE(LAMP))CALL RSPEAK(184)
+      if (HERE(LAMP)) CALL RSPEAK(184)
       GOTO 19999
 
 12600 CALL RSPEAK(185)
-      GAVEUP=.TRUE.
+      GAVEUP=.true.
       GOTO 20000
 
 !  AND, OF COURSE, DEMO GAMES ARE ENDED BY THE WIZARD.
 
 13000 CALL MSPEAK(1)
-      GAVEUP=.TRUE.
+      GAVEUP=.true.
       GOTO 20000
 
 !  OH DEAR, HE'S DISTURBED THE DWARVES.
@@ -2232,15 +2232,15 @@ program advent
 !  FIRST TALLY UP THE TREASURES.  MUST BE IN BUILDING AND NOT BROKEN.
 !  GIVE THE POOR GUY 2 POINTS JUST FOR FINDING EACH TREASURE.
 
-      DO I=50,MAXTRS
-         IF (PTEXT(I).EQ.0) CYCLE
+      do I=50,MAXTRS
+         if (PTEXT(I) == 0) cycle
          K=12
-         IF(I.EQ.CHEST)K=14
-         IF(I.GT.CHEST)K=16
-         IF(PROP(I).GE.0)SCORE=SCORE+2
-         IF(PLACE(I).EQ.3.AND.PROP(I).EQ.0)SCORE=SCORE+K-2
+         if (I == CHEST) K=14
+         if (I > CHEST) K=16
+         if (PROP(I) >= 0) SCORE=SCORE+2
+         if (PLACE(I) == 3 .and. PROP(I) == 0) SCORE=SCORE+K-2
          MXSCOR=MXSCOR+K
-      END DO
+      end do
 
 !  NOW LOOK AT HOW HE FINISHED AND HOW FAR HE GOT.  MAXDIE AND NUMDIE TELL US
 !  HOW WELL HE SURVIVED.  GAVEUP SAYS WHETHER HE EXITED VIA QUIT.  DFLAG WILL
@@ -2251,23 +2251,23 @@ program advent
 
       SCORE=SCORE+(MAXDIE-NUMDIE)*10
       MXSCOR=MXSCOR+MAXDIE*10
-      IF(.NOT.(SCORNG.OR.GAVEUP))SCORE=SCORE+4
+      if (.not.(SCORNG .or. GAVEUP)) SCORE=SCORE+4
       MXSCOR=MXSCOR+4
-      IF(DFLAG.NE.0)SCORE=SCORE+25
+      if (DFLAG /= 0) SCORE=SCORE+25
       MXSCOR=MXSCOR+25
-      IF(CLOSNG)SCORE=SCORE+25
+      if (CLOSNG) SCORE=SCORE+25
       MXSCOR=MXSCOR+25
-      IF (CLOSED) THEN
-         IF(BONUS.EQ.0)SCORE=SCORE+10
-         IF(BONUS.EQ.135)SCORE=SCORE+25
-         IF(BONUS.EQ.134)SCORE=SCORE+30
-         IF(BONUS.EQ.133)SCORE=SCORE+45
-      END IF
+      if (CLOSED) then
+         if (BONUS == 0) SCORE=SCORE+10
+         if (BONUS == 135) SCORE=SCORE+25
+         if (BONUS == 134) SCORE=SCORE+30
+         if (BONUS == 133) SCORE=SCORE+45
+      end if
       MXSCOR=MXSCOR+45
 
 !  DID HE COME TO WITT'S END AS HE SHOULD?
 
-      IF(PLACE(MAGZIN).EQ.108)SCORE=SCORE+1
+      if (PLACE(MAGZIN) == 108) SCORE=SCORE+1
       MXSCOR=MXSCOR+1
 
 !  ROUND IT OFF.
@@ -2277,13 +2277,13 @@ program advent
 
 !  DEDUCT POINTS FOR HINTS.  HINTS < 4 ARE SPECIAL; SEE DATABASE DESCRIPTION.
 
-      DO I=1,HNTMAX
-         IF(HINTED(I))SCORE=SCORE-HINTS(I,2)
-      END DO
+      do I=1,HNTMAX
+         if (HINTED(I)) SCORE=SCORE-HINTS(I,2)
+      end do
 
 !  RETURN TO SCORE COMMAND IF THAT'S WHERE WE CAME FROM.
 
-      IF(SCORNG)GOTO 8241
+      if (SCORNG) GOTO 8241
 
 !  THAT SHOULD BE GOOD ENOUGH.  LET'S TELL HIM ALL ABOUT IT.
 
@@ -2291,26 +2291,26 @@ program advent
 20100 FORMAT(///' YOU SCORED',I4,' OUT OF A POSSIBLE',I4,  &
               ', USING',I5,' TURNS.')
 
-      DO I=1,CLSSES
-         IF(CVAL(I).GE.SCORE)GOTO 20210
-      END DO
+      do I=1,CLSSES
+         if (CVAL(I) >= SCORE) GOTO 20210
+      end do
       PRINT 20202
 20202 FORMAT(/' YOU JUST WENT OFF MY SCALE!!'/)
       GOTO 25000
 
 20210 CALL SPEAK(CTEXT(I))
-      IF (I.NE.CLSSES-1) THEN
+      if (I /= CLSSES-1) then
          K=CVAL(I)+1-SCORE
          WORD='S.'
-         IF(K.EQ.1)WORD='. '
+         if (K == 1) WORD='. '
          PRINT 20212,K,WORD
 20212    FORMAT(/' TO ACHIEVE THE NEXT HIGHER RATING, YOU NEED',I3,  &
                ' MORE POINT',A2/)
-      ELSE
+      else
          PRINT 20222
 20222    FORMAT(/' TO ACHIEVE THE NEXT HIGHER RATING ',  &
                'WOULD BE A NEAT TRICK!'//' CONGRATULATIONS!!'/)
-      END IF
+      end if
 
 25000 STOP
 

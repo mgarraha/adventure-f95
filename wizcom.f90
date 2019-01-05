@@ -33,25 +33,25 @@ contains
 
       CALL DATIME(D,T)
       PRIMTM=WKDAY
-      IF(MOD(D,7).LE.1)PRIMTM=WKEND
-      IF(D.GE.HBEGIN.AND.D.LE.HEND)PRIMTM=HOLID
-      PTIME=IAND(PRIMTM,ISHFT(1,T/60)).NE.0
-      SOON=.FALSE.
-      IF(SETUP.GE.0)GOTO 20
+      if (MOD(D,7) <= 1) PRIMTM=WKEND
+      if (D >= HBEGIN .and. D <= HEND) PRIMTM=HOLID
+      PTIME=IAND(PRIMTM,ISHFT(1,T/60)) /= 0
+      SOON=.false.
+      if (SETUP >= 0) GOTO 20
       DELAY=(D-SAVED)*1440+(T-SAVET)
-      IF(DELAY.GE.LATNCY)GOTO 20
+      if (DELAY >= LATNCY) GOTO 20
       PRINT 10,DELAY
 10    FORMAT(' THIS ADVENTURE WAS SUSPENDED A MERE',I3,' MINUTES AGO.')
-      SOON=.TRUE.
-      IF(DELAY.GE.LATNCY/3)GOTO 20
+      SOON=.true.
+      if (DELAY >= LATNCY/3) GOTO 20
       CALL MSPEAK(2)
       STOP
 
 !  IF NEITHER TOO SOON NOR PRIME TIME, NO PROBLEM.  ELSE SPECIFY WHAT'S WRONG.
 
-20    START=.FALSE.
-      IF(SOON)GOTO 30
-      IF(PTIME)GOTO 25
+20    START=.false.
+      if (SOON) GOTO 30
+      if (PTIME) GOTO 25
 22    SAVED=-1
       RETURN
 
@@ -62,17 +62,17 @@ contains
 25    CALL MSPEAK(3)
       CALL HOURS
       CALL MSPEAK(4)
-      IF(WIZARD())GOTO 22
-      IF(SETUP.LT.0)GOTO 33
+      if (WIZARD()) GOTO 22
+      if (SETUP < 0) GOTO 33
       START=YESM(5,7,7)
-      IF(START)GOTO 22
+      if (START) GOTO 22
       STOP
 
 !  COME HERE IF RESTARTING TOO SOON.  IF HE'S A WIZARD, LET HIM GO (AND NOTE
 !  THAT IT THEN DOESN'T MATTER WHETHER IT'S PRIME TIME).  ELSE, TOUGH BEANS.
 
 30    CALL MSPEAK(8)
-      IF(WIZARD())GOTO 22
+      if (WIZARD()) GOTO 22
 33    CALL MSPEAK(9)
       STOP
    end function START
@@ -92,11 +92,11 @@ contains
       integer, external :: IA5
       logical, external :: YESM
 
-      IF(.NOT.WIZARD())RETURN
-      BLKLIN=.FALSE.
-      IF(YESM(10,0,0))CALL HOURS
-      IF(YESM(11,0,0))CALL NEWHRS
-      IF (YESM(26,0,0)) THEN
+      if (.not.WIZARD()) RETURN
+      BLKLIN=.false.
+      if (YESM(10,0,0)) CALL HOURS
+      if (YESM(11,0,0)) CALL NEWHRS
+      if (YESM(26,0,0)) then
          CALL MSPEAK(27)
          READ 1,HBEGIN
 1        FORMAT(I4)
@@ -108,28 +108,28 @@ contains
          CALL MSPEAK(29)
          READ 2,HNAME
 2        FORMAT(4A5)
-      END IF
+      end if
       PRINT 12,SHORT
 12    FORMAT(' LENGTH OF SHORT GAME (NULL TO LEAVE AT',I3,'):')
       READ 1,X
-      IF(X.GT.0)SHORT=X
+      if (X > 0) SHORT=X
       CALL MSPEAK(12)
       CALL GETIN(X,Y,Y,Y)
-      IF(X.NE.IA5(' '))MAGIC=X
+      if (X /= IA5(' ')) MAGIC=X
       CALL MSPEAK(13)
       READ 1,X
-      IF(X.GT.0)MAGNM=X
+      if (X > 0) MAGNM=X
       PRINT 16,LATNCY
 16    FORMAT(' LATENCY FOR RESTART (NULL TO LEAVE AT',I3,'):')
       READ 1,X
-      IF(X.GT.0.AND.X.LT.45)CALL MSPEAK(30)
-      IF(X.GT.0)LATNCY=MAX(45,X)
-      IF(YESM(14,0,0))CALL MOTD(.TRUE.)
+      if (X > 0 .and. X < 45) CALL MSPEAK(30)
+      if (X > 0) LATNCY=MAX(45,X)
+      if (YESM(14,0,0)) CALL MOTD(.true.)
       SAVED=0
       SETUP=2
       ABB(1)=0
       CALL MSPEAK(15)
-      BLKLIN=.TRUE.
+      BLKLIN=.true.
       CALL CIAO
    end subroutine MAINT
 
@@ -146,44 +146,44 @@ contains
       character*5, external :: A5I
 
       WIZARD=YESM(16,0,7)
-      IF(.NOT.WIZARD)RETURN
+      if (.not.WIZARD) RETURN
 
 !  HE SAYS HE IS.  FIRST STEP: DOES HE KNOW ANYTHING MAGICAL?
 
       CALL MSPEAK(17)
       CALL GETIN(WORD,X,Y,Z)
-      IF(WORD.NE.MAGIC)GOTO 99
+      if (WORD /= MAGIC) GOTO 99
 
 !  HE DOES.  GIVE HIM A RANDOM CHALLENGE AND CHECK HIS REPLY.
 
       CALL DATIME(D,T)
       T=T*2+1
       WORD=IA5('@@@@@')
-      DO Y=1,5
+      do Y=1,5
          X=79+MOD(D,5)
          D=D/5
-         DO Z=1,X
+         do Z=1,X
             T=MOD(T*1027,1048576)
-         END DO
+         end do
          VAL(Y)=(T*26)/1048576+1
          WORD=WORD+ISHFT(VAL(Y),36-7*Y)
-      END DO
-      IF(YESM(18,0,0))GOTO 99
+      end do
+      if (YESM(18,0,0)) GOTO 99
       PRINT 18,A5I(WORD)
 18    FORMAT(/1X,A5)
       CALL GETIN(WORD,X,Y,Z)
       CALL DATIME(D,T)
       T=(T/60)*40+(T/10)*10
       D=MAGNM
-      DO Y=1,5
+      do Y=1,5
          Z=MOD(Y,5)+1
 !  mkg made puzzle time independent
          X=MOD(ABS(VAL(Y)-VAL(Z))*MOD(D,10),26)+1
          T=T/10
          D=D/10
          WORD=WORD-ISHFT(X,36-7*Y)
-      END DO
-      IF(WORD.NE.IA5('@@@@@'))GOTO 99
+      end do
+      if (WORD /= IA5('@@@@@')) GOTO 99
 
 !  BY GEORGE, HE REALLY *IS* A WIZARD!
 
@@ -193,7 +193,7 @@ contains
 !  AHA!  AN IMPOSTOR!
 
 99    CALL MSPEAK(20)
-      WIZARD=.FALSE.
+      WIZARD=.false.
       RETURN
    end function WIZARD
 
@@ -216,15 +216,15 @@ contains
       CALL HOURSX(WKEND,'SAT -',' SUN:')
       CALL HOURSX(HOLID,'HOLID','AYS: ')
       CALL DATIME(D,T)
-      IF(HEND.LT.D.OR.HEND.LT.HBEGIN)RETURN
-      IF (HBEGIN.LE.D) THEN
+      if (HEND < D .or. HEND < HBEGIN) RETURN
+      if (HBEGIN <= D) then
          PRINT 5,HNAME
 5        FORMAT(/' TODAY IS A HOLIDAY, NAMELY ',4A5)
          RETURN
-      END IF
+      end if
       D=HBEGIN-D
       T=IA5('DAYS,')
-      IF(D.EQ.1)T=IA5('DAY, ')
+      if (D == 1) T=IA5('DAY, ')
       PRINT 15,D,T,HNAME
 15    FORMAT(/' THE NEXT HOLIDAY WILL BE IN',I3,' ',A5,' NAMELY ',4A5)
       RETURN
@@ -240,31 +240,31 @@ contains
       LOGICAL FIRST
       INTEGER FROM,TILL
 
-      FIRST=.TRUE.
+      FIRST=.true.
       FROM=-1
-      IF (H.EQ.0) THEN
+      if (H == 0) then
          PRINT 2,DAY1,DAY2
 2        FORMAT(10X,2A5,'  OPEN ALL DAY')
          RETURN
-      END IF
+      end if
 10    FROM=FROM+1
-      IF(IAND(H,ISHFT(1,FROM)).NE.0)GOTO 10
-      IF (FROM.LT.24) THEN
+      if (IAND(H,ISHFT(1,FROM)) /= 0) GOTO 10
+      if (FROM < 24) then
          TILL=FROM
 14       TILL=TILL+1
-         IF(IAND(H,ISHFT(1,TILL)).EQ.0.AND.TILL.NE.24)GOTO 14
-         IF (FIRST) THEN
+         if (IAND(H,ISHFT(1,TILL)) == 0 .and. TILL /= 24) GOTO 14
+         if (FIRST) then
             PRINT 16,DAY1,DAY2,FROM,TILL
 16          FORMAT(10X,2A5,I4,':00 TO',I3,':00')
-         ELSE
+         else
             PRINT 18,FROM,TILL
 18          FORMAT(20X,I4,':00 TO',I3,':00')
-         END IF
-         FIRST=.FALSE.
+         end if
+         FIRST=.false.
          FROM=TILL
          GOTO 10
-      END IF
-20    IF(FIRST)PRINT 22,DAY1,DAY2
+      end if
+20    if (FIRST) PRINT 22,DAY1,DAY2
 22    FORMAT(10X,2A5,'  CLOSED ALL DAY')
       RETURN
    end subroutine HOURSX
@@ -299,15 +299,15 @@ contains
 2     FORMAT(' FROM:')
       READ 3,FROM
 3     FORMAT(I4)
-      IF(FROM.LT.0.OR.FROM.GE.24)RETURN
+      if (FROM < 0 .or. FROM >= 24) RETURN
       PRINT 4
 4     FORMAT(' TILL:')
       READ 3,TILL
       TILL=TILL-1
-      IF(TILL.LT.FROM.OR.TILL.GE.24)RETURN
-      DO I=FROM,TILL
+      if (TILL < FROM .or. TILL >= 24) RETURN
+      do I=FROM,TILL
          NEWHRX=IOR(NEWHRX,ISHFT(1,I))
-      END DO
+      end do
       GOTO 10
    end function NEWHRX
 
@@ -323,10 +323,10 @@ contains
       DATA MSG/100*-1/
       integer, external :: IA5
 
-      IF(ALTER)GOTO 50
+      if (ALTER) GOTO 50
 
       K=1
-10    IF(MSG(K).LT.0)RETURN
+10    if (MSG(K) < 0) RETURN
       PRINT 20,(MSG(I),I=K+1,MSG(K)-1)
 20    FORMAT(' ',14A5)
       K=MSG(K)
@@ -336,17 +336,17 @@ contains
       CALL MSPEAK(23)
 55    READ 56,(MSG(I),I=M+1,M+14),K
 56    FORMAT(15A5)
-      IF(K.EQ.IA5('     '))GOTO 60
+      if (K == IA5('     ')) GOTO 60
       CALL MSPEAK(24)
       GOTO 55
-60    DO I=1,14
+60    do I=1,14
          K=M+15-I
-         IF(MSG(K).NE.IA5('     '))GOTO 65
-      END DO
+         if (MSG(K) /= IA5('     ')) GOTO 65
+      end do
       GOTO 90
 65    MSG(M)=K+1
       M=K+1
-      IF(M+14.LT.100)GOTO 55
+      if (M+14 < 100) GOTO 55
       CALL MSPEAK(25)
 90    MSG(M)=-1
       RETURN
