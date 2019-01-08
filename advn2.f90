@@ -305,40 +305,46 @@
 
 
 
-!  UTILITY ROUTINES (SHIFT, RAN, DATIME, CIAO, BUG)
+!  UTILITY ROUTINES (RANI, DATIME, CIAO, BUG)
 
 
-!     INTEGER FUNCTION SHIFT(VAL,DIST)
-!  RETURN VAL LEFT-SHIFTED (LOGICALLY) DIST BITS (RIGHT-SHIFT IF DIST<0).
-!  replaced by F95 intrinsic ISHFT
+      integer function RANI(rrange)
 
+!  Returns a value uniformly distributed between 0 and rrange-1.
+!  Crowther and Woods implemented an LCG (m=2**20, a=1021, c=0)
+!  as an alternative to RAN (the infamous RANDU?) in DEC LIB40.
+!  Most F95 random_number implementations are better.
 
+      implicit none
+      integer, intent(in) :: rrange
+      integer, allocatable :: seed(:)
+      integer :: D, T, ticks, nseed
+      real :: R
+      logical, save :: seeded = .false.
 
-      INTEGER FUNCTION RANI(RANGE)
-
-!  SINCE THE RAN FUNCTION IN LIB40 SEEMS TO BE A REAL LOSE, WE'LL USE ONE OF
-!  OUR OWN.  IT'S BEEN RUN THROUGH MANY OF THE TESTS IN KNUTH VOL. 2 AND
-!  SEEMS TO BE QUITE RELIABLE.  RAN RETURNS A VALUE UNIFORMLY SELECTED
-!  BETWEEN 0 AND RANGE-1.  NOTE RESEMBLANCE TO ALG USED IN WIZARD.
-
-      IMPLICIT NONE
-      INTEGER RANGE
-      INTEGER D,T
-      INTEGER R
-      DATA R/0/
-
-      D=1
-      if (R == 0) then
-         CALL DATIME(D,T)
-         R=18*T+5
-         D=1000+MOD(D,1000)
+      D = 1
+      if (.not. seeded) then
+         ! F18 random_init was not widespread in 2019.
+         ! Some F95 random_seed implementations have predictable results
+         ! when called with no argument.
+         call random_seed(size=nseed)
+         allocate(seed(nseed))
+         ! not ideal but should be OK for this program
+         call system_clock(count=ticks)
+         if (ticks == 0) ticks = 1
+         seed(:) = ticks
+         call random_seed(put=seed)
+         deallocate(seed)
+         seeded = .true.
+         call DATIME(D, T)
+         D = 10 + mod(D, 10)
       end if
-      do T=1,D
-         R=MOD(R*1021,1048576)
+      do T = 1, D
+         call random_number(R)
       end do
-      RANI=(RANGE*R)/1048576
-      RETURN
-      END
+      RANI = int(rrange * R)
+      return
+      end function RANI
 
 
 
