@@ -1,41 +1,43 @@
 module pdp10
    implicit none
 
+   integer, parameter :: A5 = selected_int_kind(11)  ! 2**35 ~= 3.4e+10
+
 contains
 
 !  UTILITY ROUTINES TO BRIDGE THE GAP BETWEEN PDP-10 AND MODERN SYSTEMS
 
-      INTEGER FUNCTION IA5(CHARS)
+   integer(kind=A5) function IA5(CHARS)
 
 !  PACKS THE 7-BIT CHARACTERS IN CHARS INTO A 36-BIT INTEGER.
 
-      CHARACTER*5 CHARS
-      INTEGER CH
-      INTEGER I
+      character(len=*), intent(in) :: CHARS
+      integer(kind=A5) :: CH
+      integer :: I
 
-      IA5=0
-      DO I=1,5
-         CH=ICHAR(CHARS(I:I))
-         CH=ISHFT(CH,36-7*I)
-         IA5=IOR(IA5,CH)
-      ENDDO
-      RETURN
-      END
+      IA5 = 0
+      do I = 1, 5
+         CH = iachar(CHARS(I:I))
+         CH = ishft(CH, 36-7*I)
+         IA5 = ior(IA5, CH)
+      end do
+      return
+   end function IA5
 
 
-      CHARACTER*5 FUNCTION A5I(BITS)
+   character(len=5) function A5I(BITS)
 
 !  CONVERTS A 36-BIT INTEGER TO 7-BIT CHARACTERS.
 
-      INTEGER BITS
-      INTEGER CH
-      INTEGER I
+      integer(kind=A5), intent(in) :: BITS
+      integer :: CH
+      integer :: I
 
-      DO I=1,5
-         CH=IAND(ISHFT(BITS,7*I-36),O"177")
-         A5I(I:I)=ACHAR(CH)
-      ENDDO
-      RETURN
-      END
+      do I = 1, 5
+         CH = iand(ishft(BITS, 7*I-36), O"177")
+         A5I(I:I) = achar(CH)
+      end do
+      return
+   end function A5I
 
 end module pdp10

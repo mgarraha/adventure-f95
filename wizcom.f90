@@ -4,8 +4,9 @@ module wizcom
    use advn2
    implicit none
 
-   integer :: WKDAY,WKEND,HOLID,HBEGIN,HEND,  &
-              SHORT,MAGIC,MAGNM,LATNCY,SAVED,SAVET
+   integer :: WKDAY, WKEND, HOLID, HBEGIN, HEND,  &
+              SHORT, MAGNM, LATNCY, SAVED, SAVET
+   integer(kind=A5) :: MAGIC
    integer :: HNAME(4)
    integer, save :: SETUP = 0
 
@@ -86,7 +87,8 @@ contains
 !  SOMEONE SAID THE MAGIC WORD TO INVOKE MAINTENANCE MODE.  MAKE SURE HE'S A
 !  WIZARD.  IF SO, LET HIM TWEAK ALL SORTS OF RANDOM THINGS, THEN EXIT SO CAN
 !  SAVE TWEAKED VERSION.
-      INTEGER D,T,X,Y
+      integer :: D, T
+      integer(kind=A5) :: X, Y
       COMMON /BLKCOM/ BLKLIN
       LOGICAL BLKLIN
 
@@ -136,7 +138,8 @@ contains
 !  ASK IF HE'S A WIZARD.  IF HE SAYS YES, MAKE HIM PROVE IT.  RETURN TRUE IF HE
 !  REALLY IS A WIZARD.
 
-      integer :: WORD,X,Y,Z,D,T
+      integer(kind=A5) :: WORD, X, Y, Z
+      integer :: D, T
       integer, dimension(5) :: VAL
 
       WIZARD=YESM(16,0,7)
@@ -164,7 +167,7 @@ contains
       end do
       if (YESM(18,0,0)) GOTO 99
       PRINT 18,A5I(WORD)
-18    FORMAT(/1X,A5)
+18    FORMAT(/1X,A)
       CALL GETIN(WORD,X,Y,Z)
       CALL DATIME(D,T)
       T=(T/60)*40+(T/10)*10

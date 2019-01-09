@@ -3,43 +3,41 @@ module advn2
 
 contains
 
-
-      SUBROUTINE A5TOA1(A,B,C,CHARS,LENG)
+   subroutine A5TOA1(A,B,C,CHARS,LENG)
 
 !  A AND B CONTAIN A 1- TO 9-CHARACTER WORD IN A5 FORMAT, C CONTAINS ANOTHER
 !  WORD AND/OR PUNCTUATION.  THEY ARE UNPACKED TO ONE CHARACTER PER WORD IN THE
 !  ARRAY "CHARS", WITH EXACTLY ONE BLANK BETWEEN B AND C (OR NONE, IF C >= 0).
 !  THE INDEX OF THE LAST NON-BLANK CHAR IN CHARS IS RETURNED IN LENG.
 
-      INTEGER A,B,C,LENG
-      CHARACTER*1 CHARS
-      INTEGER WORDS
-      DIMENSION CHARS(20),WORDS(3)
-      INTEGER POSN,WORD,CH
-      INTEGER MASK,BLANK
-      DATA MASK,BLANK/O"774000000000",O"200000000000"/
+      use pdp10
+      integer(kind=A5), intent(in) :: A, B, C
+      character(len=*), intent(out) :: CHARS
+      integer, intent(out) :: LENG
+      integer(kind=A5) :: WORDS(3)
+      integer :: POSN, WORD, CH
+      integer(kind=A5) :: MASK = O"774000000000", BLANK = O"200000000000"
 
-      WORDS(1)=A
-      WORDS(2)=B
-      WORDS(3)=C
-      POSN=1
-      do WORD=1,3
+      WORDS(1) = A
+      WORDS(2) = B
+      WORDS(3) = C
+      POSN = 1
+      do WORD = 1, 3
          if (WORD == 2 .and. POSN /= 6) cycle
-         if (WORD == 3 .and. C < 0)POSN=POSN+1
-         do CH=1,5
-            CHARS(POSN)=ACHAR(ISHFT(IAND(WORDS(WORD),MASK),-29))
-            if (CHARS(POSN) == ' ') exit
-            LENG=POSN
-            WORDS(WORD)=ISHFT(WORDS(WORD),7)
-            POSN=POSN+1
+         if (WORD == 3 .and. C < 0) POSN = POSN + 1
+         do CH = 1, 5
+            CHARS(POSN:POSN) = achar(ishft(iand(WORDS(WORD), MASK), -29))
+            if (CHARS(POSN:POSN) == ' ') exit
+            LENG = POSN
+            WORDS(WORD) = ishft(WORDS(WORD), 7)
+            POSN = POSN + 1
          end do
       end do
-      RETURN
-      END
+      return
+   end subroutine A5TOA1
 
 
-
-      integer function RANI(rrange)
+   integer function RANI(rrange)
 
 !  Returns a value uniformly distributed between 0 and rrange-1.
 !  Crowther and Woods implemented an LCG (m=2**20, a=1021, c=0)
@@ -75,23 +73,21 @@ contains
       end do
       RANI = int(rrange * R)
       return
-      end function RANI
+   end function RANI
 
 
-
-      SUBROUTINE DATIME(D,T)
+   subroutine DATIME(D,T)
 
 !  RETURN THE DATE AND TIME IN D AND T.  D IS NUMBER OF DAYS SINCE 01-JAN-77,
-!  T IS MINUTES PAST MIDNIGHT.  THIS IS HARDER THAN IT SOUNDS, BECAUSE THE
-!  FINAGLED DEC FUNCTIONS RETURN THE VALUES ONLY AS ASCII STRINGS!
+!  T IS MINUTES PAST MIDNIGHT.
 
-      INTEGER D,T
-      INTEGER X,MON,YEAR
-      INTEGER DTTM,HATH
-      DIMENSION DTTM(8),HATH(12)
-      DATA HATH/31,28,31,30,31,30,31,31,30,31,30,31/
+      integer, intent(out) :: D, T
+      integer :: X, MON, YEAR
+      integer :: DTTM(8)
+      integer, parameter :: HATH(12) =  &
+            [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
-      CALL DATE_AND_TIME(VALUES=DTTM)
+      call date_and_time(values=DTTM)
 
       YEAR=DTTM(1)-1977
       D=DTTM(3)-1
@@ -100,35 +96,34 @@ contains
          if (X == MON) GOTO 2
          D=D+HATH(MON)
       end do
-      CALL BUG(28)
+      call BUG(28)
 
 2     D=D+YEAR*365+YEAR/4
-      if (MOD(YEAR,4) == 3 .and. MON > 2) D=D+1
+      if (mod(YEAR,4) == 3 .and. MON > 2) D=D+1
       T=DTTM(5)*60+DTTM(6)
-      RETURN
-      END
+      return
+   end subroutine DATIME
 
 
-
-      SUBROUTINE CIAO
+   subroutine CIAO
 
 !  EXITS, AFTER ISSUING REMINDER TO SAVE NEW CORE IMAGE.  USED WHEN SUSPENDING
 !  AND WHEN CREATING NEW VERSION VIA MAGIC MODE.  ON SOME SYSTEMS, THE CORE
 !  IMAGE IS LOST ONCE THE PROGRAM EXITS.  IF SO, SET K=31 INSTEAD OF 32.
 
+      use pdp10
       use text
-      INTEGER K,A,B,C,D
-      DATA K/32/
+      integer, parameter :: K = 32
+      integer(kind=A5) :: A,B,C,D
 
       CALL MSPEAK(K)
       if (K == 31) CALL GETIN(A,B,C,D)
       STOP
-      END
+   end subroutine CIAO
 
 
-
-      SUBROUTINE BUG(NUM)
-      INTEGER NUM
+   subroutine BUG(NUM)
+      integer, intent(in) :: NUM
 
 !  THE FOLLOWING CONDITIONS ARE CURRENTLY CONSIDERED FATAL BUGS.  NUMBERS < 20
 !  ARE DETECTED WHILE READING THE DATABASE; THE OTHERS OCCUR AT "RUN TIME".
@@ -157,6 +152,6 @@ contains
               ' PROBABLE CAUSE: ERRONEOUS INFO IN DATABASE.'/  &
               ' ERROR CODE =',I2/)
       STOP
-      END
+   end subroutine BUG
 
 end module advn2

@@ -27,32 +27,24 @@ program advent
       use advn2
       implicit none
 
-      CHARACTER*80 TXT
-      CHARACTER*5 WORD
+      character(len=80) :: TXT
+      character(len=5) :: WORD
+      character(len=20) :: CAT
 
       COMMON /BLKCOM/ BLKLIN
       LOGICAL BLKLIN
       DATA BLKLIN/.true./
 
-      INTEGER TRAVEL,LTEXT,STEXT,KEY,COND
-      INTEGER PLAC,FIXD,PROP
-      INTEGER ACTSPK,CTEXT,CVAL
-      INTEGER HINTLC,HINTS
-      LOGICAL HINTED,QHINT
-      INTEGER TK,DLOC,ODLOC
-      LOGICAL DSEEN
-      CHARACTER*1 CAT
-      DIMENSION TRAVEL(750)
-      DIMENSION LTEXT(LOCSIZ),STEXT(LOCSIZ),KEY(LOCSIZ),COND(LOCSIZ)
-      DIMENSION PLAC(100),FIXD(100),PROP(100)
-      DIMENSION ACTSPK(35)
-      DIMENSION CTEXT(12),CVAL(12)
-      DIMENSION HINTLC(20),HINTED(20),HINTS(20,4)
-      DIMENSION TK(20),DSEEN(6),DLOC(6),ODLOC(6)
-      DIMENSION CAT(20)
+      integer, parameter :: TRVSIZ = 750, VRBSIZ = 35, CLSMAX = 12, HNTSIZ = 20
 
-      INTEGER TRVSIZ,VRBSIZ,CLSMAX,HNTSIZ
-      DATA TRVSIZ/750/,VRBSIZ/35/,CLSMAX/12/,HNTSIZ/20/
+      integer :: TRAVEL(TRVSIZ)
+      integer, dimension(LOCSIZ) :: LTEXT, STEXT, KEY, COND
+      integer, dimension(100) :: PLAC, FIXD, PROP
+      integer :: ACTSPK(VRBSIZ), CTEXT(CLSMAX), CVAL(CLSMAX)
+      integer :: HINTLC(HNTSIZ), HINTS(HNTSIZ, 4)
+      logical :: HINTED(HNTSIZ), QHINT
+      integer :: TK(20), DLOC(6), ODLOC(6)
+      logical :: DSEEN(6)
 
       INTEGER FOO,FOOBAR
       INTEGER I,J,K,L,M,N
@@ -66,7 +58,7 @@ program advent
       INTEGER NUMDIE,MAXDIE
       INTEGER SCORE,MXSCOR
       INTEGER HINT,HNTMAX
-      INTEGER WD1,WD1X,WD2,WD2X
+      integer(kind=A5) :: WD1, WD1X, WD2, WD2X
       INTEGER IWEST,LIMIT,LINUSE,MAXTRS,SECT,SPK,TABNDX
       INTEGER TALLY,TALLY2,TRVS,TURNS,VERB
       INTEGER XXD,XXT,YYD,YYT
@@ -266,10 +258,10 @@ program advent
                LINES(LINUSE+J)=IA5(WORD)
             end if
          end do
-         KK=LINES(LINUSE+15)
+         WD1 = LINES(LINUSE+15)
 !        READ(TXT(TAB+1:),1005)(LINES(J),J=LINUSE+1,LINUSE+14),KK
 !1005    FORMAT(15A5)
-         if (KK /= IA5('     ')) CALL BUG(0)
+         if (WD1 /= IA5('     ')) CALL BUG(0)
          do K=1,14
             KK=LINUSE+15-K
             if (LINES(KK) /= IA5('     ')) GOTO 1007
@@ -942,8 +934,8 @@ program advent
 !  GEE, I DON'T UNDERSTAND.
 
 3000  CALL A5TOA1(WD1,WD1X,IA5('".   '),CAT,K)
-      PRINT 3001,(CAT(I),I=1,K)
-3001  FORMAT(/' SORRY, I DON''T KNOW THE WORD "',20A1)
+      PRINT 3001, CAT(:K)
+3001  FORMAT(/' SORRY, I DON''T KNOW THE WORD "', A)
       GOTO 2600
 
 !  ANALYSE A VERB.  REMEMBER WHAT IT WAS, GO BACK FOR OBJECT IF SECOND WORD
@@ -1066,8 +1058,8 @@ program advent
 5010  if (WD2 /= 0) GOTO 2800
       if (VERB /= 0) GOTO 4090
       CALL A5TOA1(WD1,WD1X,IA5('?    '),CAT,K)
-      PRINT 5015,(CAT(I),I=1,K)
-5015  FORMAT(/' WHAT DO YOU WANT TO DO WITH THE ',20A1)
+      PRINT 5015, CAT(:K)
+5015  FORMAT(/' WHAT DO YOU WANT TO DO WITH THE ', A)
       GOTO 2600
 
 5100  if (K == GRATE) then
@@ -1093,8 +1085,8 @@ program advent
       end if
 5190  if ((VERB == FIND .or. VERB == INVENT) .and. WD2 == 0) GOTO 5010
       CALL A5TOA1(WD1,WD1X,IA5('HERE.'),CAT,K)
-      PRINT 5199,(CAT(I),I=1,K)
-5199  FORMAT(/' I SEE NO ',20A1)
+      PRINT 5199, CAT(:K)
+5199  FORMAT(/' I SEE NO ', A)
       GOTO 2012
 !  FIGURE OUT THE NEW LOCATION
 !
@@ -1331,8 +1323,8 @@ program advent
 !  RANDOM INTRANSITIVE VERBS COME HERE.  CLEAR OBJ JUST IN CASE (SEE "ATTACK").
 
 8000  CALL A5TOA1(WD1,WD1X,IA5('WHAT?'),CAT,K)
-      PRINT 8002,(CAT(I),I=1,K)
-8002  FORMAT(/' ',20A1)
+      PRINT 8002, CAT(:K)
+8002  FORMAT(/' ', A)
       OBJ=0
       GOTO 2600
 
@@ -1442,8 +1434,8 @@ program advent
       if (WD2 /= 0) WD1=WD2
       I=VOCAB(WD1,-1)
       if (.not.(I == 62 .or. I == 65 .or. I == 71 .or. I == 2025)) then
-         PRINT 9032,(CAT(I),I=1,K)
-9032     FORMAT(/' OKAY, "',20A1)
+         PRINT 9032, CAT(:K)
+9032     FORMAT(/' OKAY, "', A)
          GOTO 2012
       else
          WD2=0

@@ -13,10 +13,10 @@ contains
 
 !  PERMANENTLY ELIMINATE "OBJECT" BY MOVING TO A NON-EXISTENT LOCATION.
 
-      INTEGER OBJECT
+      integer, intent(in) :: OBJECT
 
-      CALL MOVE(OBJECT,0)
-      RETURN
+      call MOVE(OBJECT, 0)
+      return
    end subroutine DSTROY
 
 
@@ -25,94 +25,94 @@ contains
 !  JUGGLE AN OBJECT BY PICKING IT UP AND PUTTING IT DOWN AGAIN, THE PURPOSE
 !  BEING TO GET THE OBJECT TO THE FRONT OF THE CHAIN OF THINGS AT ITS LOC.
 
-      INTEGER OBJECT
-      INTEGER I,J
+      integer, intent(in) :: OBJECT
+      integer :: I,J
 
       I=PLACE(OBJECT)
       J=FIXED(OBJECT)
-      CALL MOVE(OBJECT,I)
-      CALL MOVE(OBJECT+100,J)
-      RETURN
+      call MOVE(OBJECT, I)
+      call MOVE(OBJECT+100, J)
+      return
    end subroutine JUGGLE
 
 
-   subroutine MOVE(OBJECT,WHERE)
+   subroutine MOVE(OBJECT, DEST)
 
 !  PLACE ANY OBJECT ANYWHERE BY PICKING IT UP AND DROPPING IT.  MAY ALREADY BE
 !  TOTING, IN WHICH CASE THE CARRY IS A NO-OP.  MUSTN'T PICK UP OBJECTS WHICH
 !  ARE NOT AT ANY LOC, SINCE CARRY WANTS TO REMOVE OBJECTS FROM ATLOC CHAINS.
 
-      INTEGER OBJECT,WHERE
-      INTEGER FROM
+      integer, intent(in) :: OBJECT, DEST
+      integer :: FROM
 
       if (OBJECT <= 100) then
          FROM=PLACE(OBJECT)
       else
          FROM=FIXED(OBJECT-100)
       end if
-      if (FROM > 0 .and. FROM <= 300) CALL CARRY(OBJECT,FROM)
-      CALL DROP(OBJECT,WHERE)
-      RETURN
+      if (FROM > 0 .and. FROM <= 300) call CARRY(OBJECT, FROM)
+      call DROP(OBJECT, DEST)
+      return
    end subroutine MOVE
 
 
-   integer function PUT(OBJECT,WHERE,PVAL)
+   integer function PUT(OBJECT, DEST, PVAL)
 
 !  PUT IS THE SAME AS MOVE, EXCEPT IT RETURNS A VALUE USED TO SET UP THE
 !  NEGATED PROP VALUES FOR THE REPOSITORY OBJECTS.
 
-      INTEGER OBJECT,WHERE,PVAL
+      integer, intent(in) :: OBJECT, DEST, PVAL
 
-      CALL MOVE(OBJECT,WHERE)
+      call MOVE(OBJECT, DEST)
       PUT=(-1)-PVAL
-      RETURN
+      return
    end function PUT
 
 
-   subroutine CARRY(OBJECT,WHERE)
+   subroutine CARRY(OBJECT, DEST)
 
 !  START TOTING AN OBJECT, REMOVING IT FROM THE LIST OF THINGS AT ITS FORMER
 !  LOCATION.  INCR HOLDNG UNLESS IT WAS ALREADY BEING TOTED.  IF OBJECT>100
 !  (MOVING "FIXED" SECOND LOC), DON'T CHANGE PLACE OR HOLDNG.
 
-      INTEGER OBJECT,WHERE
-      INTEGER TEMP
+      integer, intent(in) :: OBJECT, DEST
+      integer :: TEMP
 
       if (OBJECT <= 100) then
-         if (PLACE(OBJECT) == -1) RETURN
+         if (PLACE(OBJECT) == -1) return
          PLACE(OBJECT)=-1
          HOLDNG=HOLDNG+1
       end if
-      if (ATLOC(WHERE) == OBJECT) then
-         ATLOC(WHERE)=LINK(OBJECT)
-         RETURN
+      if (ATLOC(DEST) == OBJECT) then
+         ATLOC(DEST) = LINK(OBJECT)
+         return
       end if
-      TEMP=ATLOC(WHERE)
+      TEMP = ATLOC(DEST)
       do while (LINK(TEMP) /= OBJECT)
          TEMP=LINK(TEMP)
       end do
       LINK(TEMP)=LINK(OBJECT)
-      RETURN
+      return
    end subroutine CARRY
 
 
-   subroutine DROP(OBJECT,WHERE)
+   subroutine DROP(OBJECT, DEST)
 
 !  PLACE AN OBJECT AT A GIVEN LOC, PREFIXING IT ONTO THE ATLOC LIST.  DECR
 !  HOLDNG IF THE OBJECT WAS BEING TOTED.
 
-      INTEGER OBJECT,WHERE
+      integer, intent(in) :: OBJECT, DEST
       
       if (OBJECT <= 100) then
          if (PLACE(OBJECT) == -1) HOLDNG=HOLDNG-1
-         PLACE(OBJECT)=WHERE
+         PLACE(OBJECT) = DEST
       else
-         FIXED(OBJECT-100)=WHERE
+         FIXED(OBJECT-100) = DEST
       end if
-      if (WHERE <= 0) RETURN
-      LINK(OBJECT)=ATLOC(WHERE)
-      ATLOC(WHERE)=OBJECT
-      RETURN
+      if (DEST <= 0) return
+      LINK(OBJECT) = ATLOC(DEST)
+      ATLOC(DEST) = OBJECT
+      return
    end subroutine DROP
 
 end module places

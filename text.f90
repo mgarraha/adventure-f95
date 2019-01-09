@@ -1,8 +1,10 @@
 module text
+   use pdp10
    implicit none
 
    integer, parameter :: LINSIZ = 9650, RTXSIZ = 205, MAGSIZ = 35
-   integer :: LINES(LINSIZ), RTEXT(RTXSIZ), PTEXT(100), MTEXT(MAGSIZ)
+   integer(kind=A5) :: LINES(LINSIZ)
+   integer :: RTEXT(RTXSIZ), PTEXT(100), MTEXT(MAGSIZ)
    public :: SPEAK, PSPEAK, RSPEAK, MSPEAK
 
 contains
@@ -12,10 +14,9 @@ contains
 !  PRINT THE MESSAGE WHICH STARTS AT LINES(N).  PRECEDE IT WITH A BLANK LINE
 !  UNLESS BLKLIN IS FALSE.
 
-      use pdp10
       INTEGER N
       INTEGER I,K,L,M
-      CHARACTER*80 BUF
+      character(len=80) :: BUF
       LOGICAL BLKLIN
       COMMON /BLKCOM/ BLKLIN
 
@@ -105,9 +106,8 @@ contains
 !  PRINT MESSAGE X, WAIT FOR YES/NO ANSWER.  IF YES, PRINT Y AND LEAVE YEA
 !  TRUE; IF NO, PRINT Z AND LEAVE YEA FALSE.  SPK IS EITHER RSPEAK OR MSPEAK.
 
-      use pdp10
       INTEGER X,Y,Z
-      INTEGER REPLY,JUNK1,JUNK2,JUNK3
+      integer(kind=A5) :: REPLY, JUNK1, JUNK2, JUNK3
       EXTERNAL SPK
 
 1     if (X /= 0) CALL SPK(X)
@@ -126,7 +126,7 @@ contains
    end function YESX
 
 
-   subroutine GETIN(WORD1,WORD1X,WORD2,WORD2X)
+   subroutine GETIN(WORD1, WORD1X, WORD2, WORD2X)
 
 !  GET A COMMAND FROM THE ADVENTURER.  SNARF OUT THE FIRST WORD, PAD IT WITH
 !  BLANKS, AND RETURN IT IN WORD1.  CHARS 6 THRU 10 ARE RETURNED IN WORD1X, IN
@@ -134,15 +134,14 @@ contains
 !  BLANKS MAY FOLLOW THE WORD.  IF A SECOND WORD APPEARS, IT IS RETURNED IN
 !  WORD2 (CHARS 6 THRU 10 IN WORD2X), ELSE WORD2 IS SET TO ZERO.
 
-      use pdp10
-      INTEGER WORD1,WORD1X,WORD2,WORD2X
-      INTEGER I,J,K,MSK,MSK2,SECOND
+      integer(kind=A5), intent(out) :: WORD1, WORD1X, WORD2, WORD2X
+      integer :: I, J, K, SECOND
+      integer(kind=A5) :: MSK, MSK2
       LOGICAL BLKLIN
       COMMON /BLKCOM/ BLKLIN
-      CHARACTER*20 ITXT
-      CHARACTER*5 IWORD
-      INTEGER A,MASKS,BLANKS
-      DIMENSION A(5),MASKS(6)
+      character(len=20) :: ITXT
+      character(len=5) :: IWORD
+      integer(kind=A5) :: A(5), MASKS(6), BLANKS
       DATA MASKS/O"4000000000",O"20000000",O"100000",O"400",O"2",0/  &
            ,BLANKS/O"201004020100"/
 
@@ -157,7 +156,7 @@ contains
       J=0
       do I=1,4
          if (A(I) /= BLANKS)J=1
-!  convert lowercase to uppercase
+         ! convert lowercase to uppercase
          A(I)=IAND(A(I),IEOR(ISHFT(IAND(A(I),IA5('@@@@@')),-1),-1))
       end do
       if (BLKLIN .and. J == 0) GOTO 2

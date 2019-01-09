@@ -3,18 +3,20 @@ module words
    implicit none
 
    integer, parameter, public :: TABSIZ = 300
-   integer, public :: KTAB(TABSIZ), ATAB(TABSIZ)
+   integer(kind=A5), public :: ATAB(TABSIZ)
+   integer, public :: KTAB(TABSIZ)
 
-   integer, protected :: AXE, BACK, BATTER, BEAR, BIRD, BOTTLE, CAGE, CAVE,  &
-         CHAIN, CHASM, CHEST, CLAM, COINS, DOOR, DPRSSN, DRAGON, DWARF, EGGS,  &
-         EMRALD, ENTRNC, FIND, FISSUR, FOOD, GRATE, INVENT, KEYS, KNIFE, LAMP,  &
-         LOCK, LOOK, MAGZIN, MESSAG, MIRROR, NOOP, NUGGET, OIL, OYSTER, PEARL,  &
-         PILLOW, PLANT, PLANT2, PYRAM, ROD, ROD2, RUG, SAY, SNAKE, SPICES,  &
-         STEPS, TABLET, THROW, TRIDNT, TROLL, TROLL2, VASE, VEND, WATER
+   integer, protected :: AXE, BACK, BATTER, BEAR, BIRD, BOTTLE,  &
+         CAGE, CAVE, CHAIN, CHASM, CHEST, CLAM, COINS, DOOR, DPRSSN, DRAGON,  &
+         DWARF, EGGS, EMRALD, ENTRNC, FIND, FISSUR, FOOD, GRATE, INVENT,  &
+         KEYS, KNIFE, LAMP, LOCK, LOOK, MAGZIN, MESSAG, MIRROR, NOOP, NUGGET,  &
+         OIL, OYSTER, PEARL, PILLOW, PLANT, PLANT2, PYRAM, ROD, ROD2, RUG,  &
+         SAY, SNAKE, SPICES, STEPS, TABLET, THROW, TRIDNT, TROLL, TROLL2,  &
+         VASE, VEND, WATER
 
 contains
 
-   integer function VOCAB(ID,INIT)
+   integer function VOCAB(ID, INIT)
 
 !  LOOK UP ID IN THE VOCABULARY (ATAB) AND RETURN ITS "DEFINITION" (KTAB), OR
 !  -1 IF NOT FOUND.  IF INIT IS POSITIVE, THIS IS AN INITIALISATION CALL SETTING
@@ -24,24 +26,26 @@ contains
 !  AS AN OBJECT.)  AND IT ALSO MEANS THE KTAB VALUE IS TAKEN MOD 1000.
 
       use advn2
-      integer, intent(in) :: ID, INIT
-      integer :: HASH, I
+      integer(kind=A5), intent(in) :: ID
+      integer, intent(in) :: INIT
+      integer(kind=A5) :: HASH
+      integer :: I
 
-      HASH=IEOR(ID,IA5('PHROG'))
+      HASH = ieor(ID, IA5('PHROG'))
       do I=1,TABSIZ
          if (KTAB(I) == -1) GOTO 2
          if (INIT >= 0 .and. KTAB(I)/1000 /= INIT) cycle
          if (ATAB(I) == HASH) GOTO 3
       end do
-      CALL BUG(21)
+      call BUG(21)
 
 2     VOCAB=-1
-      if (INIT < 0)RETURN
-      CALL BUG(5)
+      if (INIT < 0) return
+      call BUG(5)
 
 3     VOCAB=KTAB(I)
-      if (INIT >= 0)VOCAB=MOD(VOCAB,1000)
-      RETURN
+      if (INIT >= 0) VOCAB=mod(VOCAB,1000)
+      return
    end function VOCAB
 
 
