@@ -1,3 +1,8 @@
+module pdp10
+   implicit none
+
+contains
+
 !  UTILITY ROUTINES TO BRIDGE THE GAP BETWEEN PDP-10 AND MODERN SYSTEMS
 
       INTEGER FUNCTION IA5(CHARS)
@@ -33,3 +38,4 @@
       RETURN
       END
 
+end module pdp10

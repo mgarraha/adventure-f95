@@ -19,18 +19,15 @@
 !     100 OBJECTS
 
 program advent
+      use advn2
       use wizcom
       use places
+      use text
+      use pdp10
       implicit none
 
       CHARACTER*80 TXT
       CHARACTER*5 WORD
-      logical, external :: YES
-      integer, external :: IA5,VOCAB,RANI
-
-      COMMON /TXTCOM/ RTEXT,LINES
-      INTEGER RTEXT,LINES
-      DIMENSION RTEXT(205),LINES(9650)
 
       COMMON /BLKCOM/ BLKLIN
       LOGICAL BLKLIN
@@ -40,14 +37,6 @@ program advent
       INTEGER KTAB,ATAB,TABSIZ
       DIMENSION KTAB(300),ATAB(300)
       DATA TABSIZ/300/
-
-      COMMON /MTXCOM/ MTEXT
-      INTEGER MTEXT
-      DIMENSION MTEXT(35)
-
-      COMMON /PTXCOM/ PTEXT
-      INTEGER PTEXT
-      DIMENSION PTEXT(100)
 
       COMMON /ABBCOM/ ABB
       INTEGER ABB

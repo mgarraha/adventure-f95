@@ -1,10 +1,13 @@
 module wizcom
-
+   use pdp10
+   use text
+   use advn2
    implicit none
+
    integer :: WKDAY,WKEND,HOLID,HBEGIN,HEND,  &
-              SHORT,MAGIC,MAGNM,LATNCY,SAVED,SAVET,SETUP
-   integer, dimension(4) :: HNAME
-   data SETUP /0/
+              SHORT,MAGIC,MAGNM,LATNCY,SAVED,SAVET
+   integer :: HNAME(4)
+   integer, save :: SETUP = 0
 
    public :: SHORT, LATNCY, SAVED, SAVET, SETUP
    private :: WKDAY, WKEND, HOLID, HBEGIN, HEND, HNAME, MAGIC, MAGNM
@@ -24,7 +27,7 @@ contains
 !  TRUE IF THIS IS A DEMO GAME (VALUE IS IGNORED FOR RESTARTS).
 
       INTEGER D,T,PRIMTM,DELAY
-      LOGICAL PTIME,SOON,YESM
+      LOGICAL PTIME,SOON
 
 !  FIRST FIND OUT WHETHER IT IS PRIME TIME (SAVE IN PTIME) AND, IF RESTARTING,
 !  WHETHER IT'S TOO SOON (SAVE IN SOON).  PRIME-TIME SPECS ARE IN WKDAY, WKEND,
@@ -89,8 +92,6 @@ contains
       LOGICAL BLKLIN
       COMMON /ABBCOM/ ABB
       integer, dimension(150) :: ABB
-      integer, external :: IA5
-      logical, external :: YESM
 
       if (.not.WIZARD()) RETURN
       BLKLIN=.false.
@@ -115,7 +116,7 @@ contains
       if (X > 0) SHORT=X
       CALL MSPEAK(12)
       CALL GETIN(X,Y,Y,Y)
-      if (X /= IA5(' ')) MAGIC=X
+      if (X /= IA5('     ')) MAGIC=X
       CALL MSPEAK(13)
       READ 1,X
       if (X > 0) MAGNM=X
@@ -141,9 +142,6 @@ contains
 
       integer :: WORD,X,Y,Z,D,T
       integer, dimension(5) :: VAL
-      logical, external :: YESM
-      integer, external :: IA5
-      character*5, external :: A5I
 
       WIZARD=YESM(16,0,7)
       if (.not.WIZARD) RETURN
@@ -208,7 +206,6 @@ contains
 
       INTEGER D,T
       integer, dimension(5) :: VAL
-      integer, external :: IA5
 
       PRINT 1
 1     FORMAT()
@@ -321,7 +318,6 @@ contains
       integer :: I, K, M
       integer, dimension(100) :: MSG
       DATA MSG/100*-1/
-      integer, external :: IA5
 
       if (ALTER) GOTO 50
 
@@ -357,8 +353,6 @@ contains
 
 !  AS PART OF DATABASE INITIALISATION, WE CALL POOF TO SET UP SOME DUMMY
 !  PRIME-TIME SPECS, MAGIC WORDS, ETC.
-
-      integer, external :: IA5
 
       WKDAY=O"00777400"
       WKEND=0
