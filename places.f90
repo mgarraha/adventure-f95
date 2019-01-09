@@ -3,10 +3,8 @@ module places
 
    public
    integer, parameter :: LOCSIZ = 150
-   integer, dimension(LOCSIZ) :: ATLOC
-   integer, dimension(200) :: LINK
-   integer, dimension(100) :: PLACE
-   integer, dimension(100) :: FIXED
+   integer :: ATLOC(LOCSIZ), ABB(LOCSIZ)
+   integer :: LINK(200), PLACE(100), FIXED(100)
    integer :: HOLDNG
 
 contains

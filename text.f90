@@ -1,7 +1,8 @@
 module text
    implicit none
 
-   integer :: LINES(9650), RTEXT(205), PTEXT(100), MTEXT(35)
+   integer, parameter :: LINSIZ = 9650, RTXSIZ = 205, MAGSIZ = 35
+   integer :: LINES(LINSIZ), RTEXT(RTXSIZ), PTEXT(100), MTEXT(MAGSIZ)
    public :: SPEAK, PSPEAK, RSPEAK, MSPEAK
 
 contains
