@@ -3,7 +3,7 @@ module words
    implicit none
 
    integer, parameter, public :: TABSIZ = 300
-   integer(kind=A5), public :: ATAB(TABSIZ)
+   integer(kind=A5), private :: ATAB(TABSIZ)
    integer, public :: KTAB(TABSIZ)
 
    integer, protected :: AXE, BACK, BATTER, BEAR, BIRD, BOTTLE,  &
@@ -32,21 +32,50 @@ contains
       integer :: I
 
       HASH = ieor(ID, IA5('PHROG'))
-      do I=1,TABSIZ
+      do I = 1, TABSIZ
          if (KTAB(I) == -1) GOTO 2
          if (INIT >= 0 .and. KTAB(I)/1000 /= INIT) cycle
          if (ATAB(I) == HASH) GOTO 3
       end do
       call BUG(21)
 
-2     VOCAB=-1
+2     VOCAB = -1
       if (INIT < 0) return
       call BUG(5)
 
-3     VOCAB=KTAB(I)
-      if (INIT >= 0) VOCAB=mod(VOCAB,1000)
+3     VOCAB = KTAB(I)
+      if (INIT >= 0) VOCAB = mod(VOCAB, 1000)
       return
    end function VOCAB
+
+
+   integer function read_vocab(fileno)
+
+!  HERE WE READ IN THE VOCABULARY.  KTAB(N) IS THE WORD NUMBER, ATAB(N) IS
+!  THE CORRESPONDING WORD.  THE -1 AT THE END OF SECTION 4 IS LEFT IN KTAB
+!  AS AN END-MARKER.  THE WORDS ARE GIVEN A MINIMAL HASH TO MAKE READING THE
+!  CORE-IMAGE HARDER.  NOTE THAT '/7-08' HAD BETTER NOT BE IN THE LIST, SINCE
+!  IT COULD HASH TO -1.
+
+      use advn2
+      integer, intent(in) :: fileno
+      integer :: TABNDX, IOE
+      character(len=80) :: TXT
+      character(len=5) :: WORD
+
+      do TABNDX = 1, TABSIZ
+1043     read (fileno,'(A80)') TXT
+         read (TXT,*,IOSTAT=IOE) KTAB(TABNDX), WORD
+         ATAB(TABNDX) = IA5(WORD)
+         if (KTAB(TABNDX) == 0) GOTO 1043  ! AVOID F40 EOL BUG
+         if (KTAB(TABNDX) == -1) then
+            read_vocab = TABNDX
+            return
+         end if
+         ATAB(TABNDX) = ieor(ATAB(TABNDX), IA5('PHROG'))
+      end do
+      CALL BUG(4)
+   end function read_vocab
 
 
    subroutine SETWORDS()

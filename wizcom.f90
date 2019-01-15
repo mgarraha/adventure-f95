@@ -138,9 +138,8 @@ contains
 !  ASK IF HE'S A WIZARD.  IF HE SAYS YES, MAKE HIM PROVE IT.  RETURN TRUE IF HE
 !  REALLY IS A WIZARD.
 
-      integer(kind=A5) :: WORD, X, Y, Z
+      integer(kind=A5) :: WORD, X, Y, Z, VAL(5)
       integer :: D, T
-      integer, dimension(5) :: VAL
 
       WIZARD=YESM(16,0,7)
       if (.not.WIZARD) RETURN
