@@ -18,8 +18,7 @@ contains
       IA5 = 0
       do I = 1, 5
          CH = iachar(CHARS(I:I))
-         CH = ishft(CH, 36-7*I)
-         IA5 = ior(IA5, CH)
+         call mvbits(CH, 0, 7, IA5, 36 - 7 * I)
       end do
       return
    end function IA5
@@ -30,11 +29,11 @@ contains
 !  CONVERTS A 36-BIT INTEGER TO 7-BIT CHARACTERS.
 
       integer(kind=A5), intent(in) :: BITS
-      integer :: CH
+      integer(kind=A5) :: CH
       integer :: I
 
       do I = 1, 5
-         CH = iand(ishft(BITS, 7*I-36), O"177")
+         CH = ibits(BITS, 36 - 7 * I, 7)
          A5I(I:I) = achar(CH)
       end do
       return

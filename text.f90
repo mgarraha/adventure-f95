@@ -168,10 +168,8 @@ contains
 
       do J=1,4
          do K=1,5
-            MSK=O"774000000000"
-            if (K /= 1) MSK=O"177"*MASKS(K)
             ! is char K a blank?
-            if (IAND(IEOR(A(J),BLANKS),MSK) /= 0) then
+            if (ibits(A(J), 36 - 7 * K, 7) /= iachar(' ')) then
                if (SECOND == 3) GOTO 20
                if (SECOND /= 1) cycle
                MSK=-MASKS(6-K)
@@ -188,8 +186,7 @@ contains
             if (SECOND /= 0) cycle
             SECOND=1
             ! overwrite WORD1(K+1:) with blanks
-            if (J == 1) WORD1=IOR(IAND(WORD1,-MASKS(K)),  &
-                  IAND(BLANKS,IEOR(-MASKS(K),-1)))
+            if (J == 1) call mvbits(BLANKS, 0, 36 - 7 * K, WORD1, 0)
          end do
       end do
       RETURN
