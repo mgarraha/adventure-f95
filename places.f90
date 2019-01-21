@@ -3,7 +3,8 @@ module places
 
    public
    integer, parameter :: LOCSIZ = 150
-   integer :: ATLOC(LOCSIZ), ABB(LOCSIZ)
+   integer, dimension(LOCSIZ) :: ATLOC, ABB, LTEXT = 0, STEXT = 0,  &
+         KEY = 0, COND = 0
    integer :: LINK(200), PLACE(100), FIXED(100)
    integer :: HOLDNG
 
@@ -114,5 +115,21 @@ contains
       ATLOC(DEST) = OBJECT
       return
    end subroutine DROP
+
+
+   subroutine set_ltext(LOC, LINDEX)
+      integer, intent(in) :: LOC, LINDEX
+
+      LTEXT(LOC) = LINDEX
+      return
+   end subroutine set_ltext
+
+
+   subroutine set_stext(LOC, LINDEX)
+      integer, intent(in) :: LOC, LINDEX
+
+      STEXT(LOC) = LINDEX
+      return
+   end subroutine set_stext
 
 end module places

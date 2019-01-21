@@ -2,10 +2,10 @@ module text
    use pdp10
    implicit none
 
-   integer, parameter :: LINSIZ = 9650, RTXSIZ = 205, MAGSIZ = 35
-   integer(kind=A5) :: LINES(LINSIZ)
-   integer :: RTEXT(RTXSIZ), PTEXT(100), MTEXT(MAGSIZ)
-   public :: SPEAK, PSPEAK, RSPEAK, MSPEAK
+   integer, parameter :: LINSIZ = 9650, RTXSIZ = 205
+   integer(kind=A5) :: LINES(LINSIZ) = 0
+   integer :: RTEXT(RTXSIZ) = 0, PTEXT(100) = 0
+   public :: SPEAK, PSPEAK, RSPEAK
 
 contains
 
@@ -68,17 +68,6 @@ contains
    end subroutine RSPEAK
 
 
-   subroutine MSPEAK(I)
-
-!  PRINT THE I-TH "MAGIC" MESSAGE (SECTION 12 OF DATABASE).
-
-      INTEGER I
-
-      if (I /= 0) CALL SPEAK(MTEXT(I))
-      RETURN
-   end subroutine MSPEAK
-
-
    logical function YES(X,Y,Z)
 
 !  CALL YESX (BELOW) WITH MESSAGES FROM SECTION 6.
@@ -88,17 +77,6 @@ contains
       YES=YESX(X,Y,Z,RSPEAK)
       RETURN
    end function YES
-
-
-   logical function YESM(X,Y,Z)
-
-!  CALL YESX (BELOW) WITH MESSAGES FROM SECTION 12.
-
-      INTEGER X,Y,Z
-
-      YESM=YESX(X,Y,Z,MSPEAK)
-      RETURN
-   end function YESM
 
 
    logical function YESX(X,Y,Z,SPK)
@@ -195,5 +173,25 @@ contains
 21    FORMAT(/' PLEASE STICK TO 1- AND 2-WORD COMMANDS.'/)
       GOTO 2
    end subroutine GETIN
+
+
+   subroutine set_rtext(ID, LINDEX)
+      use advn2
+      integer, intent(in) :: ID, LINDEX
+
+      if (ID <= 0 .or. ID > RTXSIZ) call BUG(6)
+      RTEXT(ID) = LINDEX
+      return
+   end subroutine set_rtext
+
+
+   subroutine set_ptext(OBJ, LINDEX)
+      integer, intent(in) :: OBJ, LINDEX
+
+      if (OBJ > 0 .and. OBJ <= 100) then
+         PTEXT(OBJ) = LINDEX
+      end if
+      return
+   end subroutine set_ptext
 
 end module text

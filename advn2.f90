@@ -105,23 +105,6 @@ contains
    end subroutine DATIME
 
 
-   subroutine CIAO
-
-!  EXITS, AFTER ISSUING REMINDER TO SAVE NEW CORE IMAGE.  USED WHEN SUSPENDING
-!  AND WHEN CREATING NEW VERSION VIA MAGIC MODE.  ON SOME SYSTEMS, THE CORE
-!  IMAGE IS LOST ONCE THE PROGRAM EXITS.  IF SO, SET K=31 INSTEAD OF 32.
-
-      use pdp10
-      use text
-      integer, parameter :: K = 32
-      integer(kind=A5) :: A,B,C,D
-
-      CALL MSPEAK(K)
-      if (K == 31) CALL GETIN(A,B,C,D)
-      STOP
-   end subroutine CIAO
-
-
    subroutine BUG(NUM)
       integer, intent(in) :: NUM
 

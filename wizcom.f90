@@ -10,6 +10,9 @@ module wizcom
    integer :: HNAME(4)
    integer, save :: SETUP = 0
 
+   integer, parameter :: MAGSIZ = 35
+   integer :: MTEXT(MAGSIZ) = 0
+
    public :: SHORT, LATNCY, SAVED, SAVET, SETUP
    private :: WKDAY, WKEND, HOLID, HBEGIN, HEND, HNAME, MAGIC, MAGNM
 
@@ -363,5 +366,55 @@ contains
       LATNCY=90
       RETURN
    end subroutine POOF
+
+
+   subroutine CIAO
+
+!  EXITS, AFTER ISSUING REMINDER TO SAVE NEW CORE IMAGE.  USED WHEN SUSPENDING
+!  AND WHEN CREATING NEW VERSION VIA MAGIC MODE.  ON SOME SYSTEMS, THE CORE
+!  IMAGE IS LOST ONCE THE PROGRAM EXITS.  IF SO, SET K=31 INSTEAD OF 32.
+
+      use pdp10
+      use text
+      integer, parameter :: K = 32
+      integer(kind=A5) :: A,B,C,D
+
+      CALL MSPEAK(K)
+      if (K == 31) CALL GETIN(A,B,C,D)
+      STOP
+   end subroutine CIAO
+
+
+   subroutine MSPEAK(I)
+
+!  PRINT THE I-TH "MAGIC" MESSAGE (SECTION 12 OF DATABASE).
+
+      use text
+      integer, intent(in) :: I
+
+      if (I > 0 .and. I <= MAGSIZ) call SPEAK(MTEXT(I))
+      return
+   end subroutine MSPEAK
+
+
+   logical function YESM(X, Y, Z)
+
+!  CALL YESX WITH MESSAGES FROM SECTION 12.
+
+      use text
+      integer, intent(in) :: X, Y, Z
+
+      YESM = YESX(X, Y, Z, MSPEAK)
+      return
+   end function YESM
+
+
+   subroutine set_mtext(ID, LINDEX)
+      use advn2
+      integer, intent(in) :: ID, LINDEX
+
+      if (ID <= 0 .or. ID > MAGSIZ) call BUG(6)
+      MTEXT(ID) = LINDEX
+   end subroutine set_mtext
 
 end module wizcom

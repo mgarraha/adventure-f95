@@ -38,9 +38,8 @@ program advent
       integer, parameter :: TRVSIZ = 750, VRBSIZ = 35, CLSMAX = 12, HNTSIZ = 20
 
       integer :: TRAVEL(TRVSIZ)
-      integer, dimension(LOCSIZ) :: LTEXT, STEXT, KEY, COND
       integer, dimension(100) :: PLAC, FIXD, PROP
-      integer :: ACTSPK(VRBSIZ), CTEXT(CLSMAX), CVAL(CLSMAX)
+      integer :: ACTSPK(VRBSIZ), CTEXT(CLSMAX) = 0, CVAL(CLSMAX)
       integer :: HINTLC(HNTSIZ), HINTS(HNTSIZ, 4)
       logical :: HINTED(HNTSIZ), QHINT
       integer :: TK(20), DLOC(6), ODLOC(6)
@@ -194,17 +193,6 @@ program advent
 !  SECTION 6'S STUFF.  CTEXT(N) POINTS TO A PLAYER-CLASS MESSAGE.  MTEXT IS FOR
 !  SECTION 12.  WE ALSO CLEAR COND.  SEE DESCRIPTION OF SECTION 9 FOR DETAILS.
 
-      do I=1,300
-         if (I <= 100) PTEXT(I)=0
-         if (I <= RTXSIZ) RTEXT(I)=0
-         if (I <= CLSMAX) CTEXT(I)=0
-         if (I <= MAGSIZ) MTEXT(I)=0
-         if (I > LOCSIZ) cycle
-         STEXT(I)=0
-         LTEXT(I)=0
-         COND(I)=0
-         KEY(I)=0
-      end do
       PLAC=0
       FIXD=0
 
@@ -260,8 +248,6 @@ program advent
             end if
          end do
          WD1 = LINES(LINUSE+15)
-!        READ(TXT(TAB+1:),1005)(LINES(J),J=LINUSE+1,LINUSE+14),KK
-!1005    FORMAT(15A5)
          if (WD1 /= IA5('     ')) CALL BUG(0)
          do K=1,14
             KK=LINUSE+15-K
@@ -275,21 +261,17 @@ program advent
             LINES(LINUSE)=-LINES(LINUSE)
             select case (SECT)
                case (1)
-                  LTEXT(LOC)=LINUSE
+                  call set_ltext(LOC, LINUSE)
                case (5)
-                  if (LOC > 0 .and. LOC <= 100) PTEXT(LOC)=LINUSE
+                  call set_ptext(LOC, LINUSE)
                case (6)
-                  if (LOC > RTXSIZ) CALL BUG(6)
-                  RTEXT(LOC)=LINUSE
+                  call set_rtext(LOC, LINUSE)
                case (10)
-                  CTEXT(CLSSES)=LINUSE
-                  CVAL(CLSSES)=LOC
-                  CLSSES=CLSSES+1
+                  call add_ctext(LOC, LINUSE)
                case (12)
-                  if (LOC > MAGSIZ) CALL BUG(6)
-                  MTEXT(LOC)=LINUSE
+                  call set_mtext(LOC, LINUSE)
                case default
-                  STEXT(LOC)=LINUSE
+                  call set_stext(LOC, LINUSE)
             end select
          end if
 
@@ -2198,6 +2180,14 @@ program advent
 
 
 contains
+
+   subroutine add_ctext(VAL, LINDEX)
+      integer, intent(in) :: VAL, LINDEX
+      CTEXT(CLSSES) = LINDEX
+      CVAL(CLSSES) = VAL
+      CLSSES = CLSSES + 1
+      return
+   end subroutine add_ctext
 
 !  TOTING(OBJ)  = TRUE IF THE OBJ IS BEING CARRIED
    logical function TOTING(OBJ)

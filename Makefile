@@ -11,9 +11,9 @@ advent: pdp10.o text.o words.o places.o wizcom.o advn2.o adven.o
 porttest: pdp10.o text.o advn2.o porttest.o
 	$(FC) -o $@ $^
 
-advn2.o: pdp10.o text.o
+advn2.o: pdp10.o
 
-text.o: pdp10.o
+text.o: pdp10.o advn2.o
 
 words.o: pdp10.o advn2.o
 
