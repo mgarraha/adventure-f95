@@ -5,13 +5,21 @@ FFLAGS = -g
 
 all: advent porttest
 
-advent: pdp10.o text.o words.o places.o wizcom.o advn2.o adven.o
+advent: pdp10.o text.o words.o locations.o objects.o wizcom.o advn2.o adven.o
 	$(FC) -o $@ $^
 
 porttest: pdp10.o text.o advn2.o porttest.o
 	$(FC) -o $@ $^
 
+porttest.o: pdp10.o text.o advn2.o
+
+adven.o: pdp10.o text.o words.o locations.o objects.o wizcom.o advn2.o
+
 advn2.o: pdp10.o
+
+objects.o: locations.o text.o
+
+locations.o: text.o
 
 text.o: pdp10.o advn2.o
 

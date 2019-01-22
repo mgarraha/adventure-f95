@@ -4,8 +4,8 @@ module text
 
    integer, parameter :: LINSIZ = 9650, RTXSIZ = 205
    integer(kind=A5) :: LINES(LINSIZ) = 0
-   integer :: RTEXT(RTXSIZ) = 0, PTEXT(100) = 0
-   public :: SPEAK, PSPEAK, RSPEAK
+   integer :: RTEXT(RTXSIZ) = 0
+   public :: SPEAK, RSPEAK
 
 contains
 
@@ -37,24 +37,6 @@ contains
       if (LINES(K) >= 0) GOTO 1
       RETURN
    end subroutine SPEAK
-
-
-   subroutine PSPEAK(MSG,SKIP)
-
-!  FIND THE SKIP+1ST MESSAGE FROM MSG AND PRINT IT.  MSG SHOULD BE THE INDEX OF
-!  THE INVENTORY MESSAGE FOR OBJECT.  (INVEN+N+1 MESSAGE IS PROP=N MESSAGE).
-
-      INTEGER MSG,SKIP
-      INTEGER I,M
-
-      M=PTEXT(MSG)
-      do I=0,SKIP
-1        M=ABS(LINES(M))
-         if (LINES(M) >= 0) GOTO 1
-      end do
-      CALL SPEAK(M)
-      RETURN
-   end subroutine PSPEAK
 
 
    subroutine RSPEAK(I)
@@ -183,15 +165,5 @@ contains
       RTEXT(ID) = LINDEX
       return
    end subroutine set_rtext
-
-
-   subroutine set_ptext(OBJ, LINDEX)
-      integer, intent(in) :: OBJ, LINDEX
-
-      if (OBJ > 0 .and. OBJ <= 100) then
-         PTEXT(OBJ) = LINDEX
-      end if
-      return
-   end subroutine set_ptext
 
 end module text

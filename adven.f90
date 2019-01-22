@@ -20,7 +20,8 @@
 
 program advent
       use pdp10
-      use places
+      use locations
+      use objects
       use text
       use words
       use wizcom
@@ -38,7 +39,6 @@ program advent
       integer, parameter :: TRVSIZ = 750, VRBSIZ = 35, CLSMAX = 12, HNTSIZ = 20
 
       integer :: TRAVEL(TRVSIZ)
-      integer, dimension(100) :: PLAC, FIXD, PROP
       integer :: ACTSPK(VRBSIZ), CTEXT(CLSMAX) = 0, CVAL(CLSMAX)
       integer :: HINTLC(HNTSIZ), HINTS(HNTSIZ, 4)
       logical :: HINTED(HNTSIZ), QHINT
@@ -194,8 +194,6 @@ program advent
 !  SECTION 12.  WE ALSO CLEAR COND.  SEE DESCRIPTION OF SECTION 9 FOR DETAILS.
 
       ! text-pointer arrays are now zeroed in declarations
-      PLAC=0
-      FIXD=0
 
       OPEN(1,FILE='adven.dat')
       SETUP=1
@@ -384,20 +382,11 @@ program advent
 !  CORRECT LINK TO USE.)  ABB IS ZEROED; IT CONTROLS WHETHER THE ABBREVIATED
 !  DESCRIPTION IS PRINTED.  COUNTS MOD 5 UNLESS "LOOK" IS USED.
 
-      do I=1,100
-         PLACE(I)=0
-         PROP(I)=0
-         LINK(I)=0
-         LINK(I+100)=0
-      end do
-
       do I=1,LOCSIZ
-         ABB(I)=0
          if (LTEXT(I) /= 0  .and.  KEY(I) /= 0) then
             K=KEY(I)
             if (MOD(ABS(TRAVEL(K)),1000) == 1) COND(I)=2
          end if
-         ATLOC(I)=0
       end do
 
 !  SET UP THE ATLOC AND LINK ARRAYS AS DESCRIBED ABOVE.  WE'LL USE THE DROP

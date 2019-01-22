@@ -1,11 +1,12 @@
-module places
+module objects
    implicit none
 
-   public
-   integer, parameter :: LOCSIZ = 150
-   integer, dimension(LOCSIZ) :: ATLOC, ABB, LTEXT = 0, STEXT = 0,  &
-         KEY = 0, COND = 0
-   integer :: LINK(200), PLACE(100), FIXED(100)
+   integer, parameter :: OBJSIZ = 100
+   integer :: PTEXT(OBJSIZ) = 0
+   integer :: LINK(2 * OBJSIZ) = 0
+   integer :: PLACE(OBJSIZ) = 0, FIXED(OBJSIZ) = 0
+   integer :: PLAC(OBJSIZ) = 0, FIXD(OBJSIZ) = 0
+   integer :: PROP(OBJSIZ) = 0
    integer :: HOLDNG
 
 contains
@@ -29,10 +30,10 @@ contains
       integer, intent(in) :: OBJECT
       integer :: I,J
 
-      I=PLACE(OBJECT)
-      J=FIXED(OBJECT)
+      I = PLACE(OBJECT)
+      J = FIXED(OBJECT)
       call MOVE(OBJECT, I)
-      call MOVE(OBJECT+100, J)
+      call MOVE(OBJECT + 100, J)
       return
    end subroutine JUGGLE
 
@@ -65,12 +66,13 @@ contains
       integer, intent(in) :: OBJECT, DEST, PVAL
 
       call MOVE(OBJECT, DEST)
-      PUT=(-1)-PVAL
+      PUT = (-1) - PVAL
       return
    end function PUT
 
 
    subroutine CARRY(OBJECT, DEST)
+      use locations, only: ATLOC
 
 !  START TOTING AN OBJECT, REMOVING IT FROM THE LIST OF THINGS AT ITS FORMER
 !  LOCATION.  INCR HOLDNG UNLESS IT WAS ALREADY BEING TOTED.  IF OBJECT>100
@@ -81,8 +83,8 @@ contains
 
       if (OBJECT <= 100) then
          if (PLACE(OBJECT) == -1) return
-         PLACE(OBJECT)=-1
-         HOLDNG=HOLDNG+1
+         PLACE(OBJECT) = -1
+         HOLDNG = HOLDNG + 1
       end if
       if (ATLOC(DEST) == OBJECT) then
          ATLOC(DEST) = LINK(OBJECT)
@@ -90,14 +92,15 @@ contains
       end if
       TEMP = ATLOC(DEST)
       do while (LINK(TEMP) /= OBJECT)
-         TEMP=LINK(TEMP)
+         TEMP = LINK(TEMP)
       end do
-      LINK(TEMP)=LINK(OBJECT)
+      LINK(TEMP) = LINK(OBJECT)
       return
    end subroutine CARRY
 
 
    subroutine DROP(OBJECT, DEST)
+      use locations, only: ATLOC
 
 !  PLACE AN OBJECT AT A GIVEN LOC, PREFIXING IT ONTO THE ATLOC LIST.  DECR
 !  HOLDNG IF THE OBJECT WAS BEING TOTED.
@@ -105,10 +108,10 @@ contains
       integer, intent(in) :: OBJECT, DEST
       
       if (OBJECT <= 100) then
-         if (PLACE(OBJECT) == -1) HOLDNG=HOLDNG-1
+         if (PLACE(OBJECT) == -1) HOLDNG = HOLDNG-1
          PLACE(OBJECT) = DEST
       else
-         FIXED(OBJECT-100) = DEST
+         FIXED(OBJECT - 100) = DEST
       end if
       if (DEST <= 0) return
       LINK(OBJECT) = ATLOC(DEST)
@@ -117,19 +120,34 @@ contains
    end subroutine DROP
 
 
-   subroutine set_ltext(LOC, LINDEX)
-      integer, intent(in) :: LOC, LINDEX
+   subroutine PSPEAK(MSG, SKIP)
+      use text
 
-      LTEXT(LOC) = LINDEX
+!  FIND THE SKIP+1ST MESSAGE FROM MSG AND PRINT IT.  MSG SHOULD BE THE INDEX OF
+!  THE INVENTORY MESSAGE FOR OBJECT.  (INVEN+N+1 MESSAGE IS PROP=N MESSAGE).
+
+      integer, intent(in) :: MSG, SKIP
+      integer :: I, M
+
+      M = PTEXT(MSG)
+      do I = 0, SKIP
+         do
+            M = abs(LINES(M))
+            if (LINES(M) < 0) exit
+         end do
+      end do
+      call SPEAK(M)
       return
-   end subroutine set_ltext
+   end subroutine PSPEAK
 
 
-   subroutine set_stext(LOC, LINDEX)
-      integer, intent(in) :: LOC, LINDEX
+   subroutine set_ptext(OBJ, LINDEX)
+      integer, intent(in) :: OBJ, LINDEX
 
-      STEXT(LOC) = LINDEX
+      if (OBJ > 0 .and. OBJ <= OBJSIZ) then
+         PTEXT(OBJ) = LINDEX
+      end if
       return
-   end subroutine set_stext
+   end subroutine set_ptext
 
-end module places
+end module objects
