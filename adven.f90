@@ -193,6 +193,7 @@ program advent
 !  SECTION 6'S STUFF.  CTEXT(N) POINTS TO A PLAYER-CLASS MESSAGE.  MTEXT IS FOR
 !  SECTION 12.  WE ALSO CLEAR COND.  SEE DESCRIPTION OF SECTION 9 FOR DETAILS.
 
+      ! text-pointer arrays are now zeroed in declarations
       PLAC=0
       FIXD=0
 
@@ -777,22 +778,24 @@ program advent
       if (DARK()) GOTO 2012
       ABB(LOC)=ABB(LOC)+1
       I=ATLOC(LOC)
-2004  if (I == 0) GOTO 2012
-      OBJ=I
-      if (OBJ > 100) OBJ=OBJ-100
-      if (OBJ == STEPS .and. TOTING(NUGGET)) GOTO 2008
-      if (PROP(OBJ) >= 0) GOTO 2006
-      if (CLOSED) GOTO 2008
-      PROP(OBJ)=0
-      if (OBJ == RUG .or. OBJ == CHAIN) PROP(OBJ)=1
-      TALLY=TALLY-1
+      do
+         if (I == 0) GOTO 2012
+         OBJ=I
+         if (OBJ > 100) OBJ=OBJ-100
+         if (OBJ == STEPS .and. TOTING(NUGGET)) GOTO 2008
+         if (PROP(OBJ) < 0) then
+            if (CLOSED) GOTO 2008
+            PROP(OBJ)=0
+            if (OBJ == RUG .or. OBJ == CHAIN) PROP(OBJ)=1
+            TALLY=TALLY-1
 !  IF REMAINING TREASURES TOO ELUSIVE, ZAP HIS LAMP.
-      if (TALLY == TALLY2 .and. TALLY /= 0) LIMIT=MIN(35,LIMIT)
-2006  KK=PROP(OBJ)
-      if (OBJ == STEPS .and. LOC == FIXED(STEPS)) KK=1
-      CALL PSPEAK(OBJ,KK)
-2008  I=LINK(I)
-      GOTO 2004
+            if (TALLY == TALLY2 .and. TALLY /= 0) LIMIT=MIN(35,LIMIT)
+         end if
+         KK=PROP(OBJ)
+         if (OBJ == STEPS .and. LOC == FIXED(STEPS)) KK=1
+         CALL PSPEAK(OBJ,KK)
+2008     I=LINK(I)
+      end do
 
 2009  K=54
 2010  SPK=K
