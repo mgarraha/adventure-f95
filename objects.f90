@@ -120,6 +120,24 @@ contains
    end subroutine DROP
 
 
+!  TOTING(OBJ)  = TRUE IF THE OBJ IS BEING CARRIED
+   logical function TOTING(OBJ)
+      integer, intent(in) :: OBJ
+      TOTING = PLACE(OBJ) == -1
+      return
+   end function TOTING
+
+
+!  LIQ()   = OBJECT NUMBER OF LIQUID IN BOTTLE
+   integer function LIQ()
+      use words
+      integer :: PBOTL
+      PBOTL = max(PROP(BOTTLE), -1-PROP(BOTTLE))
+      LIQ = (1 - PBOTL) * WATER + (PBOTL / 2) * (WATER + OIL)
+      return
+   end function LIQ
+
+
    subroutine PSPEAK(MSG, SKIP)
       use text
 

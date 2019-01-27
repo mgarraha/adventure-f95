@@ -383,7 +383,7 @@ program advent
 !  DESCRIPTION IS PRINTED.  COUNTS MOD 5 UNLESS "LOOK" IS USED.
 
       do I=1,LOCSIZ
-         if (LTEXT(I) /= 0  .and.  KEY(I) /= 0) then
+         if (LTEXT(I) /= 0 .and. KEY(I) /= 0) then
             K=KEY(I)
             if (MOD(ABS(TRAVEL(K)),1000) == 1) COND(I)=2
          end if
@@ -1316,7 +1316,7 @@ program advent
          CALL RSPEAK(92)
          GOTO 2012
       end if
-      if (OBJ == BIRD  .and.  PROP(BIRD) == 0) then
+      if (OBJ == BIRD .and. PROP(BIRD) == 0) then
          if (TOTING(ROD)) then
             CALL RSPEAK(26)
             GOTO 2012
@@ -2181,73 +2181,36 @@ contains
       return
    end subroutine add_ctext
 
-!  TOTING(OBJ)  = TRUE IF THE OBJ IS BEING CARRIED
-   logical function TOTING(OBJ)
-      integer, intent(in) :: OBJ
-      TOTING = PLACE(OBJ) == -1
-      return
-   end function
 
 !  HERE(OBJ)    = TRUE IF THE OBJ IS AT "LOC" (OR IS BEING CARRIED)
    logical function HERE(OBJ)
       integer, intent(in) :: OBJ
       HERE = PLACE(OBJ) == LOC .or. TOTING(OBJ)
       return
-   end function
+   end function HERE
+
 
 !  AT(OBJ)      = TRUE IF ON EITHER SIDE OF TWO-PLACED OBJECT
    logical function AT(OBJ)
       integer, intent(in) :: OBJ
       AT = PLACE(OBJ) == LOC .or. FIXED(OBJ) == LOC
       return
-   end function
+   end function AT
 
-   integer function LIQ2(PBOTL)
-      integer, intent(in) :: PBOTL
-      LIQ2 = (1 - PBOTL) * WATER + (PBOTL / 2) * (WATER + OIL)
-      return
-   end function
-
-!  LIQ()   = OBJECT NUMBER OF LIQUID IN BOTTLE
-   integer function LIQ()
-      LIQ = LIQ2(MAX(PROP(BOTTLE), -1-PROP(BOTTLE)))
-      return
-   end function
-
-!  LIQLOC(LOC)  = OBJECT NUMBER OF LIQUID (IF ANY) AT LOC
-   integer function LIQLOC(LOC)
-      integer, intent(in) :: LOC
-      LIQLOC = LIQ2((MOD(COND(LOC) / 2 * 2, 8) - 5)  &
-            * MOD(COND(LOC) / 4, 2) + 1)
-      return
-   end function
-
-!  BITSET(L,N)  = TRUE IF COND(L) HAS BIT N SET (BIT 0 IS UNITS BIT)
-   logical function BITSET(L, N)
-      integer, intent(in) :: L, N
-      BITSET = BTEST(COND(L), N)
-      return
-   end function
-
-!  FORCED(LOC)  = TRUE IF LOC MOVES WITHOUT ASKING FOR INPUT (COND=2)
-   logical function FORCED(LOC)
-      integer, intent(in) :: LOC
-      FORCED = COND(LOC) == 2
-      return
-   end function
 
 !  DARK()  = TRUE IF LOCATION "LOC" IS DARK
    logical function DARK()
-      DARK = MOD(COND(LOC), 2) == 0 .and.  &
+      DARK = mod(COND(LOC), 2) == 0 .and.  &
             (PROP(LAMP) == 0 .or. .not. HERE(LAMP))
       return
-   end function
+   end function DARK
+
 
 !  PCT(N)       = TRUE N% OF THE TIME (N INTEGER FROM 0 TO 100)
    logical function PCT(N)
       integer, intent(in) :: N
       PCT = RANI(100) < N
       return
-   end function
+   end function PCT
 
 end program

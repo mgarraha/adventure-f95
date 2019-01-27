@@ -17,9 +17,9 @@ adven.o: pdp10.o text.o words.o locations.o objects.o wizcom.o advn2.o
 
 advn2.o: pdp10.o
 
-objects.o: locations.o text.o
+objects.o: locations.o text.o words.o
 
-locations.o: text.o
+locations.o: text.o words.o
 
 text.o: pdp10.o advn2.o
 
